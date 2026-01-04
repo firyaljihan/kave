@@ -1,130 +1,202 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id" x-data="{ darkMode: localStorage.getItem('theme') === 'dark' }" :class="{ 'dark': darkMode }" class="scroll-smooth">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Kave - Event Telkom University Surabaya</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kave. | Platform Event Kampus</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600,800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    </style>
 </head>
-<body class="antialiased bg-white text-gray-900 font-sans">
+<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-200 antialiased transition-colors duration-300">
 
-    <nav class="flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
-        <div class="flex items-center gap-2">
-            <div class="bg-blue-600 text-white font-bold p-2 rounded-lg">K</div>
-            <span class="text-2xl font-extrabold tracking-tight text-slate-900">Kave.</span>
-        </div>
+    <nav class="fixed top-0 w-full z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-100 dark:border-white/5">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#6366f1] rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <span class="text-white font-black italic text-xl">K</span>
+                </div>
+                <span class="text-2xl font-bold tracking-tighter dark:text-white uppercase">Kave<span class="text-[#6366f1]">.</span></span>
+            </div>
 
-        <div class="hidden md:flex space-x-8 font-medium text-gray-600">
-            <a href="#" class="hover:text-blue-600 transition">Product</a>
-            <a href="#" class="hover:text-blue-600 transition">Features</a>
-            <a href="#" class="hover:text-blue-600 transition">Resources</a>
-            <a href="#" class="hover:text-blue-600 transition">Company</a>
-        </div>
+            <div class="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-500 dark:text-slate-400">
+                <a href="#about" class="hover:text-indigo-600 dark:hover:text-white transition">Tentang</a>
+                <a href="#events" class="hover:text-indigo-600 dark:hover:text-white transition">Event</a>
+                <a href="#propose" class="hover:text-indigo-600 dark:hover:text-white transition">Penyelenggara</a>
+            </div>
 
-        <div class="flex items-center gap-4">
-            @if (Route::has('login'))
+            <div class="flex items-center gap-4">
+                <button @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light')"
+                        class="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-indigo-400 hover:bg-slate-100 transition">
+                    <i x-show="!darkMode" class="fa-solid fa-moon"></i>
+                    <i x-show="darkMode" class="fa-solid fa-sun"></i>
+                </button>
                 @auth
-                    <a href="{{ url('/dashboard') }}" class="font-semibold text-gray-600 hover:text-blue-600">Dashboard &rarr;</a>
+                    <a href="{{ route('dashboard') }}" class="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-extrabold rounded-xl shadow-sm hover:opacity-90 transition uppercase tracking-wider">Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-blue-600">Log in &rarr;</a>
-
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="hidden md:inline-block bg-blue-600 text-white px-5 py-2 rounded-full font-bold hover:bg-blue-700 transition">
-                            Sign Up
-                        </a>
-                    @endif
+                    <a href="{{ route('login') }}" class="hidden sm:block text-xs font-bold hover:text-indigo-600 transition uppercase tracking-widest">Masuk</a>
+                    <a href="{{ route('register') }}" class="px-6 py-2.5 bg-[#6366f1] text-white text-xs font-extrabold rounded-xl hover:bg-indigo-500 transition shadow-md shadow-indigo-500/20 uppercase tracking-widest">Daftar</a>
                 @endauth
-            @endif
+            </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-6 py-12 md:py-20">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-
-            <div class="space-y-6">
-                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight text-slate-900">
-                    Platform Terpadu <br>
-                    Informasi Event <br>
-                    <span class="text-blue-600">Telkom University</span> <br>
-                    <span class="text-blue-600">Surabaya.</span>
+    <section class="relative pt-44 pb-24 lg:pt-56 lg:pb-32">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-16 items-center">
+            <div class="max-w-2xl">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-extrabold uppercase tracking-[0.2em] mb-8">
+                    Telkom University Surabaya
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1] mb-8">
+                    Temukan event <br><span class="text-[#6366f1]">dengan mudah.</span>
                 </h1>
-
-                <p class="text-lg text-gray-600 leading-relaxed max-w-lg">
-                    Temukan berbagai kegiatan mahasiswa, workshop, hingga seminar dalam satu wadah.
-                    Kami mempermudah mahasiswa Telkom University Surabaya untuk mengeksplorasi setiap peluang dan pengalaman di kampus.
+                <p class="text-lg lg:text-xl text-slate-500 dark:text-slate-400 leading-relaxed mb-10 max-w-xl">
+                    Kave adalah platform pusat informasi kegiatan mahasiswa Tel-U Surabaya. Cari, daftar, dan kembangkan diri dalam satu klik.
                 </p>
-
-                <div class="pt-4">
-                    <a href="#explore" class="inline-block bg-blue-600 text-white text-lg font-bold px-8 py-4 rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl transition transform hover:-translate-y-1">
-                        Cari Event
-                    </a>
+                <div class="flex items-center gap-6">
+                    <a href="#events" class="px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-black font-extrabold rounded-2xl text-base hover:translate-y-[-4px] transition shadow-xl">Jelajahi Event</a>
+                    <a href="#about" class="px-6 py-4 text-slate-600 dark:text-slate-300 font-bold text-base hover:text-indigo-600 transition flex items-center gap-2">Fitur Utama <i class="fa-solid fa-arrow-right-long"></i></a>
                 </div>
             </div>
-
-            <div class="relative">
-                <img src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=2070&auto=format&fit=crop"
-                     alt="Event Audience"
-                     class="rounded-[2.5rem] shadow-2xl w-full object-cover h-[500px] rotate-2 hover:rotate-0 transition duration-500">
-
-                <div class="absolute -z-10 top-10 -right-10 w-24 h-24 bg-yellow-400 rounded-full blur-xl opacity-50"></div>
-                <div class="absolute -z-10 bottom-10 -left-10 w-32 h-32 bg-blue-400 rounded-full blur-xl opacity-50"></div>
+            <div class="relative hidden lg:block">
+                <div class="absolute -inset-4 bg-indigo-500/10 rounded-[3rem] blur-3xl"></div>
+                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80"
+                     class="relative rounded-[2.5rem] w-full aspect-[4/3] object-cover border border-slate-200 dark:border-white/5 shadow-2xl transition-transform duration-700 hover:scale-[1.01]" alt="Campus Life">
             </div>
-
-        </div>
-    </main>
-
-    <section id="explore" class="bg-gray-50 py-20 mt-10">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex justify-between items-end mb-10">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900">Event Terbaru</h2>
-                    <p class="text-gray-500 mt-2">Jangan sampai ketinggalan kegiatan seru minggu ini.</p>
-                </div>
-                <a href="#" class="text-blue-600 font-semibold hover:underline">Lihat Semua &rarr;</a>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                @foreach($events as $event)
-                <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden border border-gray-100">
-                    <div class="h-48 bg-gray-200 overflow-hidden">
-                        <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="w-full h-full object-cover hover:scale-105 transition duration-500">
-                    </div>
-
-                    <div class="p-6">
-                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">
-                            {{ $event->category->name ?? 'Umum' }}
-                        </span>
-                        <h3 class="text-xl font-bold mt-3 text-gray-900 line-clamp-1">{{ $event->title }}</h3>
-                        <p class="text-gray-500 text-sm mt-1 mb-4 flex items-center gap-1">
-                            📅 {{ \Carbon\Carbon::parse($event->start_date)->format('d M Y') }}
-                        </p>
-
-                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                            <span class="font-bold text-blue-600">
-                                {{ $event->price == 0 ? 'Gratis' : 'Rp ' . number_format($event->price, 0, ',', '.') }}
-                            </span>
-                            <a href="{{ route('events.show', $event->id) }}" class="text-sm font-semibold text-gray-600 hover:text-blue-600">Detail &rarr;</a>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-
-            @if($events->isEmpty())
-                <div class="text-center py-10">
-                    <p class="text-gray-500">Belum ada event yang dipublish.</p>
-                </div>
-            @endif
         </div>
     </section>
 
-    <footer class="bg-white border-t border-gray-100 py-10 mt-10">
-        <div class="max-w-7xl mx-auto px-6 text-center text-gray-500 text-sm">
-            &copy; {{ date('Y') }} Kave Event Management. Telkom University Surabaya.
+    <section id="about" class="py-24 lg:py-32 bg-slate-50/50 dark:bg-slate-900/10 border-y border-slate-100 dark:border-white/5">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="mb-16 lg:mb-20">
+                <h2 class="text-indigo-600 dark:text-indigo-400 font-extrabold tracking-[0.2em] text-xs uppercase mb-4">Kenapa memilih Kave?</h2>
+                <p class="text-3xl lg:text-4xl font-extrabold dark:text-white tracking-tight">Fitur Utama Kami.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-12 lg:gap-20">
+                @php
+                    $features = [
+                        ['icon' => 'fa-bolt-lightning', 'title' => 'Update Cepat', 'desc' => 'Dapatkan info event kampus terbaru secara real-time langsung dari organisasi mahasiswa.'],
+                        ['icon' => 'fa-id-card-clip', 'title' => 'Akses Mudah', 'desc' => 'Pendaftaran simpel menggunakan data mahasiswa, tidak perlu isi form panjang berkali-kali.'],
+                        ['icon' => 'fa-award', 'title' => 'E-Sertifikat', 'desc' => 'Semua sertifikat kegiatanmu tersimpan rapi dalam satu dashboard untuk portofolio masa depan.']
+                    ];
+                @endphp
+                @foreach($features as $f)
+                <div class="group">
+                    <div class="w-14 h-14 bg-[#6366f1]/10 rounded-2xl flex items-center justify-center mb-8 text-[#6366f1] group-hover:bg-[#6366f1] group-hover:text-white transition-all duration-500 shadow-sm">
+                        <i class="fa-solid {{ $f['icon'] }} text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-2xl mb-4 dark:text-white">{{ $f['title'] }}</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-base leading-relaxed max-w-sm">{{ $f['desc'] }}</p>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section id="events" class="py-24 lg:py-32">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="flex items-center justify-between mb-16">
+                <h2 class="text-3xl lg:text-4xl font-extrabold dark:text-white tracking-tight uppercase">Event <span class="text-[#6366f1]">Terbaru</span></h2>
+                <div class="h-[1px] flex-1 bg-slate-100 dark:bg-white/5 mx-12 hidden sm:block"></div>
+                <a href="#" class="text-xs font-black text-slate-400 hover:text-[#6366f1] transition tracking-[0.3em] uppercase">Lihat Semua</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                @forelse($events as $event)
+                    <div class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500">
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="{{ asset('storage/' . $event->image) }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            <div class="absolute top-6 left-6">
+                                <span class="bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-[10px] font-black text-slate-900 uppercase tracking-widest shadow-sm">{{ $event->category->name }}</span>
+                            </div>
+                        </div>
+                        <div class="p-8 text-left">
+                            <div class="flex items-center gap-3 text-xs font-bold text-[#6366f1] uppercase tracking-widest mb-4">
+                                <i class="fa-regular fa-calendar-days text-sm"></i>
+                                {{ \Carbon\Carbon::parse($event->start_date)->translatedFormat('d M Y') }}
+                            </div>
+                            <h3 class="text-2xl font-bold mb-6 dark:text-white line-clamp-2 leading-tight group-hover:text-[#6366f1] transition-colors">{{ $event->title }}</h3>
+                            <div class="flex items-center justify-between pt-6 border-t border-slate-50 dark:border-white/5">
+                                <span class="text-xs text-slate-400 font-semibold flex items-center gap-1.5"><i class="fa-solid fa-location-dot"></i> {{ Str::limit($event->location, 20) }}</span>
+                                <a href="{{ route('events.show', $event->id) }}" class="text-xs font-black text-[#6366f1] hover:tracking-widest transition-all">DETAIL</a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full py-32 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[3rem]">
+                        <p class="text-slate-400 text-lg font-medium italic">Belum ada event tersedia.</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+    <section id="propose" class="pb-32 px-6 lg:px-12">
+        <div class="max-w-[1440px] mx-auto">
+            <div class="relative bg-slate-900 dark:bg-indigo-900/40 rounded-[3.5rem] p-12 lg:p-24 overflow-hidden shadow-2xl shadow-indigo-500/20 text-center border border-white/5">
+
+                <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#fff 1.5px, transparent 1.5px); background-size: 40px 40px;"></div>
+
+                <div class="relative z-10">
+                    <h2 class="text-4xl lg:text-6xl font-extrabold text-white mb-8 leading-tight tracking-tight">
+                        Punya event keren? <br>Publikasikan di Kave.
+                    </h2>
+                    <p class="text-slate-300 max-w-2xl mx-auto mb-12 text-base lg:text-xl leading-relaxed">
+                        Tinggalkan email Anda di bawah ini. Tim kami akan segera menghubungi Anda untuk membantu proses publikasi event di ekosistem Telkom University Surabaya.
+                    </p>
+
+                    <form action="#" method="POST" class="max-w-xl mx-auto flex flex-col sm:flex-row gap-4 p-2 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-sm shadow-inner transition-all focus-within:border-indigo-500/50">
+                        @csrf <input
+                            type="email"
+                            name="organizer_email"
+                            placeholder="Masukkan email organisasi/UKM Anda"
+                            required
+                            class="flex-1 bg-transparent px-6 py-4 outline-none text-white font-medium placeholder:text-slate-500 rounded-full focus:ring-0"
+                        >
+                        <button
+                            type="submit"
+                            class="px-10 py-4 bg-white text-black font-black rounded-[1.5rem] hover:bg-indigo-500 hover:text-white transition-all duration-300 shadow-xl active:scale-95"
+                        >
+                            Hubungi Saya
+                        </button>
+                    </form>
+
+                    <p class="mt-6 text-slate-500 text-xs font-medium uppercase tracking-widest">
+                        <i class="fa-solid fa-shield-halved mr-2"></i> Data Anda aman bersama tim kami
+                    </p>
+                </div>
+
+                <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-600 rounded-full blur-[120px] opacity-20"></div>
+                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-400 rounded-full blur-[120px] opacity-10"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-16 border-t border-slate-100 dark:border-white/5">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="flex items-center gap-3 grayscale opacity-60">
+                <div class="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center">
+                    <span class="text-white dark:text-black font-black text-xs">K</span>
+                </div>
+                <span class="text-lg font-bold tracking-tighter uppercase dark:text-white">Kave.</span>
+            </div>
+            <p class="text-slate-400 text-[10px] font-black tracking-[0.4em] uppercase">&copy; 2026 Telkom University Surabaya</p>
         </div>
     </footer>
 
