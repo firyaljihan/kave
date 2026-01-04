@@ -81,10 +81,17 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        if ($event->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak memiliki akses ke event ini.');
+        // Cek Hak Akses
+        $isOwner = Auth::check() && $event->user_id === Auth::id();
+        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
+        $isPublished = $event->status === 'published';
+
+        // Jika BUKAN Owner, DAN BUKAN Admin, DAN Event belum Publish... TOLAK.
+        if (!$isOwner && !$isAdmin && !$isPublished) {
+            abort(403, 'Event ini belum dipublikasikan atau Anda tidak memiliki akses.');
         }
 
+        // Eager Loading relasi biar query enteng
         $event->load(['category', 'user']);
 
         return view('events.show', compact('event'));
