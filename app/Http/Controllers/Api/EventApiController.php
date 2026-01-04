@@ -76,4 +76,60 @@ class EventApiController extends Controller
             'data'    => $event
         ], 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $event = Event::find($id);
+
+        if (!$event) {
+            return response()->json(['message' => 'Event Tidak Ditemukan'], 404);
+        }
+
+        if ($event->user_id !== $request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak berhak mengedit event ini.'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'title'       => 'required',
+            'description' => 'required',
+            'start_date'  => 'required|date',
+            'end_date'    => 'required|date|after:start_date',
+            'location'    => 'required',
+            'price'       => 'required|numeric',
+            'category_id' => 'required',
+            'image'       => 'nullable|image|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        if ($request->hasFile('image')) {
+            if ($event->image) {
+                Storage::disk('public')->delete($event->image);
+            }
+            $imagePath = $request->file('image')->store('posters', 'public');
+            $event->update(['image' => $imagePath]);
+        }
+
+        $event->update([
+            'title'       => $request->title,
+            'description' => $request->description,
+            'start_date'  => $request->start_date,
+            'end_date'    => $request->end_date,
+            'location'    => $request->location,
+            'price'       => $request->price,
+            'category_id' => $request->category_id,
+            'status'      => 'draft',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event Berhasil Diupdate',
+            'data'    => $event
+        ], 200);
+    }
 }
