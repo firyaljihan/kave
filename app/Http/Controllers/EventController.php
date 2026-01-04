@@ -24,7 +24,7 @@ class EventController extends Controller
      */
     public function index()
     {
-       $events = Event::where('user_id', Auth::id())
+        $events = Event::where('user_id', Auth::id())
             ->latest()
             ->get();
 
@@ -93,24 +93,82 @@ class EventController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Event $event)
     {
-        //
+        if ($event->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak berhak mengedit event ini.');
+        }
+
+        $categories = Category::all();
+
+        return view('events.edit', compact('event', 'categories'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Event $event)
     {
-        //
+        if ($event->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'location' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Boleh kosong
+        ]);
+
+        $data = $request->except(['image']);
+
+        if ($request->hasFile('image')) {
+            if ($event->image) {
+                Storage::disk('public')->delete($event->image);
+            }
+            $data['image'] = $request->file('image')->store('posters', 'public');
+        }
+
+        $data['status'] = 'draft';
+
+        $event->update($data);
+
+        return redirect()->route('events.index')
+            ->with('success', 'Event berhasil diperbarui! Status kembali menjadi Draft.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Event $event)
     {
-        //
+        if ($event->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak berhak menghapus event ini.');
+        }
+
+        if ($event->image) {
+            Storage::disk('public')->delete($event->image);
+        }
+
+        $event->delete();
+
+        return redirect()->route('events.index')
+            ->with('success', 'Event berhasil dihapus permanen.');
     }
+
+    public function submit(Event $event)
+    {
+        if ($event->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $event->update(['status' => 'pending']);
+
+        return back()->with('success', 'Event berhasil diajukan! Mohon tunggu persetujuan Admin.');
+    }
+
 }
