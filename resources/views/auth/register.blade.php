@@ -15,7 +15,7 @@
 
                 <div>
                     <label for="name" class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Nama Lengkap</label>
-                    <input id="name" type="text" name="name" :value="old('name')" required autofocus autocomplete="name"
+                    <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name"
                         class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all duration-300 placeholder:text-slate-400"
                         placeholder="Contoh: Charlie Puth">
                     <x-input-error :messages="$errors->get('name')" class="mt-2 ml-1" />
@@ -23,7 +23,7 @@
 
                 <div>
                     <label for="email" class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email Mahasiswa</label>
-                    <input id="email" type="email" name="email" :value="old('email')" required autocomplete="username"
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="username"
                         class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all duration-300 placeholder:text-slate-400"
                         placeholder="nama@student.telkomuniversity.ac.id">
                     <x-input-error :messages="$errors->get('email')" class="mt-2 ml-1" />
@@ -54,7 +54,7 @@
                 </div>
 
                 <p class="text-center text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pt-4">
-                    Sudah punya akun? <a href="{{ route('login') }}" class="text-[#6366f1] hover:text-indigo-400 transition-colors duration-300 underline decoration-[#6366f1]/30 underline-offset-4">Masuk ke Kave.</a>
+                    Sudah punya akun? <a href="{{ route('login') }}" class="text-[#6366f1] hover:text-indigo-400 transition-colors duration-300 underline decoration-[#6366f1]/30 underline-offset-4 tracking-normal">Masuk ke Kave.</a>
                 </p>
             </form>
         </div>
