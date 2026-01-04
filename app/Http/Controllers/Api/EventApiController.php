@@ -132,4 +132,31 @@ class EventApiController extends Controller
             'data'    => $event
         ], 200);
     }
+
+    public function destroy(Request $request, $id)
+    {
+        $event = Event::find($id);
+
+        if (!$event) {
+            return response()->json(['message' => 'Event Tidak Ditemukan'], 404);
+        }
+
+        if ($event->user_id !== $request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak berhak menghapus event ini.'
+            ], 403);
+        }
+
+        if ($event->image) {
+            Storage::disk('public')->delete($event->image);
+        }
+
+        $event->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event Berhasil Dihapus',
+        ], 200);
+    }
 }
