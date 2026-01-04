@@ -19,4 +19,22 @@ class EventApiController extends Controller
             'data'    => $events
         ], 200);
     }
+
+    public function show($id)
+    {
+        $event = Event::find($id);
+
+        if ($event) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail Data Event',
+                'data'    => $event
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Event Tidak Ditemukan',
+        ], 404);
+    }
 }
