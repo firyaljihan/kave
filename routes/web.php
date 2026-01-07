@@ -1,112 +1,59 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\CategoryController; // Wajib Import (Admin)
-// use App\Http\Controllers\RegistrationController; // Wajib Import (Mahasiswa)
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\PublicController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PenyelenggaraController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProfileController;
 
-/*
-|--------------------------------------------------------------------------
-| 1. PUBLIC ROUTES (Halaman Depan)
-|--------------------------------------------------------------------------
-*/
-
-// Landing Page (Info web & event terbaru)
-Route::get('/', [EventController::class, 'landingPage'])->name('landing');
-
-
-/*
-|--------------------------------------------------------------------------
-| 2. DASHBOARD REDIRECTOR (Lampu Lalu Lintas)
-|--------------------------------------------------------------------------
-| Logic: Setelah login, user dilempar kesini. Kita cek rolenya,
-| lalu arahkan ke "markas" (prefix) masing-masing.
-*/
+Route::get('/', [PublicController::class, 'index'])->name('landing');
+Route::get('/event/{id}', [PublicController::class, 'show'])->name('events.show');
 
 Route::get('/dashboard', function () {
-    $role = Auth::user()->role;
+    $role = auth()->user()->role;
 
-    if ($role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    } elseif ($role === 'penyelenggara') {
-        return redirect()->route('penyelenggara.dashboard');
-    } else {
-        // Default: Mahasiswa
-        return redirect()->route('mahasiswa.dashboard');
-    }
+    if ($role === 'admin') return redirect()->route('admin.dashboard');
+    if ($role === 'penyelenggara') return redirect()->route('penyelenggara.dashboard');
+    if ($role === 'mahasiswa') return redirect()->route('mahasiswa.dashboard');
+
+    return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-
-/*
-|--------------------------------------------------------------------------
-| 3. AUTHENTICATED ROUTES (Harus Login)
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware('auth')->group(function () {
 
-    // --- GROUP ADMIN (Akses Penuh) ---
-    // Akses URL: /admin/...
-    // Nama Route: admin.categories.index, admin.dashboard, dll
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // Dashboard Admin (Statistik)
-        Route::get('/dashboard', function () {
-            // Kita ambil data ringkas untuk dashboard
-            $totalUser      = \App\Models\User::where('role', '!=', 'admin')->count();
-            $pendingEvents  = \App\Models\Event::where('status', 'pending')->count();
-            $totalCategories= \App\Models\Category::count();
+        Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+        Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
+        Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+        Route::patch('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 
-            return view('admin.dashboard', compact('totalUser', 'pendingEvents', 'totalCategories'));
-        })->name('dashboard');
+        Route::patch('/events/{id}/approve', [AdminController::class, 'approveEvent'])->name('events.approve');
+        Route::patch('/events/{id}/reject', [AdminController::class, 'rejectEvent'])->name('events.reject');
 
-        // CRUD Kategori
         Route::resource('categories', CategoryController::class);
-
-        // TODO: Nanti tambahkan route approval event disini jika sudah siap
     });
 
-
-    // --- GROUP PENYELENGGARA (Event Organizer) ---
-    // Akses URL: /penyelenggara/...
     Route::middleware('role:penyelenggara')->prefix('penyelenggara')->name('penyelenggara.')->group(function () {
-
-        // Dashboard Penyelenggara (Langsung lihat list event mereka)
-        Route::get('/dashboard', [EventController::class, 'index'])->name('dashboard');
-
-        // CRUD Event
-        Route::resource('events', EventController::class);
-
-        // Fitur Submit Event (Mengajukan publish ke admin)
-        Route::patch('/events/{event}/submit', [EventController::class, 'submit'])->name('events.submit');
+        Route::get('/dashboard', [PenyelenggaraController::class, 'dashboard'])->name('dashboard');
+        Route::resource('events', PenyelenggaraController::class);
+        Route::get('/events/{id}/participants', [PenyelenggaraController::class, 'eventParticipants'])->name('events.participants');
+        Route::patch('/events/{id}/submit', [PenyelenggaraController::class, 'submitForReview'])->name('events.submit');
     });
 
+    Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+        Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('dashboard');
+        Route::get('/explore', [MahasiswaController::class, 'explore'])->name('explore');
+        Route::post('/event/{id}/daftar', [MahasiswaController::class, 'daftar'])->name('pendaftaran.store');
+    });
 
-    // --- GROUP MAHASISWA (Peserta) ---
-    // Akses URL: /mahasiswa/...
-    // Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
-
-    //     // Dashboard Mahasiswa (Sementara redirect ke Landing Page atau buat view khusus)
-    //     Route::get('/dashboard', function () {
-    //          // Opsional: Buat view 'mahasiswa.dashboard' atau redirect ke landing page
-    //          return redirect()->route('landing');
-    //     })->name('dashboard');
-
-    //     // Route untuk Daftar Event (Klik tombol Daftar)
-    //     Route::post('/events/{id}/register', [RegistrationController::class, 'store'])->name('events.register');
-
-    //     // Route untuk Lihat History (Menu History)
-    //     Route::get('/history', [RegistrationController::class, 'history'])->name('history');
-    // });
-
-
-    // --- PROFILE SETTINGS (Bawaan Breeze) ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
 
 require __DIR__.'/auth.php';

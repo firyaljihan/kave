@@ -46,8 +46,11 @@
                     <i x-show="!darkMode" class="fa-solid fa-moon"></i>
                     <i x-show="darkMode" class="fa-solid fa-sun"></i>
                 </button>
+
                 @auth
-                    <a href="{{ route('dashboard') }}" class="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-extrabold rounded-xl shadow-sm hover:opacity-90 transition uppercase tracking-wider">Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-extrabold rounded-xl shadow-sm hover:opacity-90 transition uppercase tracking-wider">
+                        Dashboard
+                    </a>
                 @else
                     <a href="{{ route('login') }}" class="hidden sm:block text-xs font-bold hover:text-indigo-600 transition uppercase tracking-widest">Masuk</a>
                     <a href="{{ route('register') }}" class="px-6 py-2.5 bg-[#6366f1] text-white text-xs font-extrabold rounded-xl hover:bg-indigo-500 transition shadow-md shadow-indigo-500/20 uppercase tracking-widest">Daftar</a>
@@ -114,33 +117,42 @@
             <div class="flex items-center justify-between mb-16">
                 <h2 class="text-3xl lg:text-4xl font-extrabold dark:text-white tracking-tight uppercase">Event <span class="text-[#6366f1]">Terbaru</span></h2>
                 <div class="h-[1px] flex-1 bg-slate-100 dark:bg-white/5 mx-12 hidden sm:block"></div>
-                <a href="#" class="text-xs font-black text-slate-400 hover:text-[#6366f1] transition tracking-[0.3em] uppercase">Lihat Semua</a>
+                <a href="#events" class="text-xs font-black text-slate-400 hover:text-[#6366f1] transition tracking-[0.3em] uppercase">Lihat Semua</a>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 @forelse($events as $event)
                     <div class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500">
                         <div class="relative h-64 overflow-hidden">
-                            <img src="{{ asset('storage/' . $event->image) }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            <img src="{{ asset('storage/' . $event->image) }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="{{ $event->title }}">
                             <div class="absolute top-6 left-6">
-                                <span class="bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-[10px] font-black text-slate-900 uppercase tracking-widest shadow-sm">{{ $event->category->name }}</span>
+                                <span class="bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-[10px] font-black text-slate-900 uppercase tracking-widest shadow-sm">
+                                    {{ $event->category->name }}
+                                </span>
                             </div>
                         </div>
+
                         <div class="p-8 text-left">
                             <div class="flex items-center gap-3 text-xs font-bold text-[#6366f1] uppercase tracking-widest mb-4">
                                 <i class="fa-regular fa-calendar-days text-sm"></i>
                                 {{ \Carbon\Carbon::parse($event->start_date)->translatedFormat('d M Y') }}
                             </div>
-                            <h3 class="text-2xl font-bold mb-6 dark:text-white line-clamp-2 leading-tight group-hover:text-[#6366f1] transition-colors">{{ $event->title }}</h3>
+                            <h3 class="text-2xl font-bold mb-6 dark:text-white line-clamp-2 leading-tight group-hover:text-[#6366f1] transition-colors">
+                                {{ $event->title }}
+                            </h3>
                             <div class="flex items-center justify-between pt-6 border-t border-slate-50 dark:border-white/5">
-                                <span class="text-xs text-slate-400 font-semibold flex items-center gap-1.5"><i class="fa-solid fa-location-dot"></i> {{ Str::limit($event->location, 20) }}</span>
-                                <a href="{{ route('events.show', $event->id) }}" class="text-xs font-black text-[#6366f1] hover:tracking-widest transition-all">DETAIL</a>
+                                <span class="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+                                    <i class="fa-solid fa-location-dot"></i> {{ Str::limit($event->location, 20) }}
+                                </span>
+                                <a href="{{ route('events.show', $event->id) }}" class="text-xs font-black text-[#6366f1] hover:tracking-widest transition-all">
+                                    DETAIL
+                                </a>
                             </div>
                         </div>
                     </div>
                 @empty
                     <div class="col-span-full py-32 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[3rem]">
-                        <p class="text-slate-400 text-lg font-medium italic">Belum ada event tersedia.</p>
+                        <p class="text-slate-400 text-lg font-medium italic">Belum ada event tersedia saat ini.</p>
                     </div>
                 @endforelse
             </div>
@@ -161,8 +173,9 @@
                         Tinggalkan email Anda di bawah ini. Tim kami akan segera menghubungi Anda untuk membantu proses publikasi event di ekosistem Telkom University Surabaya.
                     </p>
 
-                    <form action="#" method="POST" class="max-w-xl mx-auto flex flex-col sm:flex-row gap-4 p-2 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-sm shadow-inner transition-all focus-within:border-indigo-500/50">
-                        @csrf <input
+                    <form action="#" method="POST" class="max-w-xl mx-auto flex flex-col sm:flex-row gap-4 p-2 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-sm shadow-inner transition-all focus-within:border-indigo-500/50" onsubmit="event.preventDefault(); alert('Terima kasih! Tim kami akan menghubungi Anda.');">
+                        @csrf
+                        <input
                             type="email"
                             name="organizer_email"
                             placeholder="Masukkan email organisasi/UKM Anda"
