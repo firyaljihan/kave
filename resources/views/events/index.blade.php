@@ -15,7 +15,7 @@
             @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <a href="{{ route('events.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
+                <a href="{{ route('penyelenggara.events.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
                     + Buat Event Baru
                 </a>
 
@@ -44,15 +44,15 @@
                                     <a href="{{ route('events.show', $event->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">Lihat</a>
 
                                     @if($event->status == 'draft')
-                                        <a href="{{ route('events.edit', $event->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-2">Edit</a>
+                                        <a href="{{ route('penyelenggara.events.edit', $event->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-2">Edit</a>
 
-                                        <form action="{{ route('events.destroy', $event->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin hapus?');">
+                                        <form action="{{ route('penyelenggara.events.destroy', $event->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin hapus?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
                                         </form>
 
-                                        <form action="{{ route('events.submit', $event->id) }}" method="POST" class="mt-2">
+                                        <form action="{{ route('penyelenggara.events.submit', $event->id) }}" method="POST" class="mt-2">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="bg-indigo-500 text-white text-xs px-2 py-1 rounded hover:bg-indigo-700">

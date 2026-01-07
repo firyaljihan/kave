@@ -12,38 +12,50 @@ class EventController extends Controller
 {
     public function landingPage()
     {
+        if (Auth::check()) {
+            if (Auth::user()->role === 'admin')
+                return redirect()->route('admin.dashboard');
+            if (Auth::user()->role === 'penyelenggara')
+                return redirect()->route('penyelenggara.dashboard');
+            if (Auth::user()->role === 'mahasiswa')
+                return redirect()->route('mahasiswa.dashboard');
+        }
+
         $events = Event::with('category', 'user')
             ->where('status', 'published')
             ->latest()
+            ->take(6)
             ->get();
 
         return view('welcome', compact('events'));
     }
-    /**
-     * Display a listing of the resource.
-     */
+
+    public function show(Event $event)
+    {
+        $isOwner = Auth::check() && $event->user_id === Auth::id();
+        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
+        $isPublished = $event->status === 'published';
+
+        if (!$isOwner && !$isAdmin && !$isPublished) {
+            abort(403, 'Event ini belum dipublikasikan.');
+        }
+
+        $event->load(['category', 'user']);
+        return view('events.show', compact('event'));
+    }
+
     public function index()
     {
-        $events = Event::where('user_id', Auth::id())
-            ->latest()
-            ->get();
-
+        $events = Event::where('user_id', Auth::id())->latest()->get();
         return view('events.index', compact('events'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $categories = Category::all();
-
         return view('events.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -72,53 +84,22 @@ class EventController extends Controller
             'status' => 'draft',
         ]);
 
-        return redirect()->route('events.index')
-            ->with('success', 'Event berhasil dibuat! Status saat ini: Draft.');
+        return redirect()->route('penyelenggara.events.index')
+            ->with('success', 'Event dibuat! Status: Draft.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Event $event)
-    {
-        // Cek Hak Akses
-        $isOwner = Auth::check() && $event->user_id === Auth::id();
-        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
-        $isPublished = $event->status === 'published';
-
-        // Jika BUKAN Owner, DAN BUKAN Admin, DAN Event belum Publish... TOLAK.
-        if (!$isOwner && !$isAdmin && !$isPublished) {
-            abort(403, 'Event ini belum dipublikasikan atau Anda tidak memiliki akses.');
-        }
-
-        // Eager Loading relasi biar query enteng
-        $event->load(['category', 'user']);
-
-        return view('events.show', compact('event'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Event $event)
     {
-        if ($event->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak berhak mengedit event ini.');
-        }
-
+        if ($event->user_id !== Auth::id())
+            abort(403);
         $categories = Category::all();
-
         return view('events.edit', compact('event', 'categories'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Event $event)
     {
-        if ($event->user_id !== Auth::id()) {
+        if ($event->user_id !== Auth::id())
             abort(403);
-        }
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -128,54 +109,63 @@ class EventController extends Controller
             'location' => 'required|string',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Boleh kosong
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $data = $request->except(['image']);
 
         if ($request->hasFile('image')) {
-            if ($event->image) {
+            if ($event->image)
                 Storage::disk('public')->delete($event->image);
-            }
             $data['image'] = $request->file('image')->store('posters', 'public');
         }
 
         $data['status'] = 'draft';
-
         $event->update($data);
 
-        return redirect()->route('events.index')
-            ->with('success', 'Event berhasil diperbarui! Status kembali menjadi Draft.');
+        return redirect()->route('penyelenggara.events.index')
+            ->with('success', 'Event diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Event $event)
     {
-        if ($event->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak berhak menghapus event ini.');
-        }
-
-        if ($event->image) {
+        if ($event->user_id !== Auth::id())
+            abort(403);
+        if ($event->image)
             Storage::disk('public')->delete($event->image);
-        }
-
         $event->delete();
 
-        return redirect()->route('events.index')
-            ->with('success', 'Event berhasil dihapus permanen.');
+        return redirect()->route('penyelenggara.events.index')
+            ->with('success', 'Event dihapus.');
     }
 
     public function submit(Event $event)
     {
-        if ($event->user_id !== Auth::id()) {
+        if ($event->user_id !== Auth::id())
             abort(403);
-        }
-
         $event->update(['status' => 'pending']);
-
-        return back()->with('success', 'Event berhasil diajukan! Mohon tunggu persetujuan Admin.');
+        return back()->with('success', 'Event diajukan ke Admin.');
     }
 
+    public function approve(Event $event)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Anda bukan Admin!');
+        }
+
+        $event->update(['status' => 'published']);
+
+        return back()->with('success', "Event '{$event->title}' berhasil dipublikasikan!");
+    }
+
+    public function reject(Event $event)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Anda bukan Admin!');
+        }
+
+        $event->update(['status' => 'draft']);
+
+        return back()->with('error', "Event '{$event->title}' ditolak dan dikembalikan ke Draft.");
+    }
 }

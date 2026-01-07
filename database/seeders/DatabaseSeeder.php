@@ -13,24 +13,24 @@ class DatabaseSeeder extends Seeder
     {
         // Akun ADMIN
         User::create([
-            'name' => 'Admin Kampus',
-            'email' => 'admin@kampus.com',
+            'name' => 'Admin Kave',
+            'email' => 'admin@kave.com',
             'password' => Hash::make('12345'),
             'role' => 'admin',
         ]);
 
         // Akun PENYELENGGARA
         User::create([
-            'name' => 'BEM Fakultas',
-            'email' => 'bem@kampus.com',
+            'name' => 'Himpunan Mahasiswa Sistem Informasi',
+            'email' => 'hmsi@telkomuniversity.ac.id',
             'password' => Hash::make('12345'),
             'role' => 'penyelenggara',
         ]);
 
         // MAHASISWA
         User::create([
-            'name' => 'Maba Telkom',
-            'email' => 'maba@student.com',
+            'name' => 'Firyal Jihan',
+            'email' => 'firyaljihan@student.telkomuniversity.ac.id',
             'password' => Hash::make('12345'),
             'role' => 'mahasiswa',
         ]);
