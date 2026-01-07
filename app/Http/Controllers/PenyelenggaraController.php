@@ -137,4 +137,19 @@ class PenyelenggaraController extends Controller
 
         return view('penyelenggara.events.participants', compact('event', 'pendaftarans'));
     }
+
+    public function submitForReview($id)
+    {
+        $event = Event::findOrFail($id);
+        if ($event->user_id !== Auth::id()) abort(403);
+
+        if ($event->status !== 'draft') {
+            return back()->with('error', 'Event tidak dapat diajukan.');
+        }
+
+        $event->update(['status' => 'pending']);
+
+        return redirect()->route('penyelenggara.events.index')
+            ->with('success', 'Event berhasil diajukan ke Admin!');
+    }
 }

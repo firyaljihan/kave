@@ -17,10 +17,10 @@ class PublicController extends Controller
                 return redirect()->route('admin.dashboard');
             }
             if ($role === 'penyelenggara') {
-                return redirect()->route('organizer.dashboard');
+                return redirect()->route(route: 'penyelenggara.dashboard');
             }
             if ($role === 'mahasiswa') {
-                return redirect()->route('student.dashboard');
+                return redirect()->route('mahasiswa.dashboard');
             }
         }
 

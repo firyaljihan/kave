@@ -1,44 +1,54 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\PublicController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PenyelenggaraController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProfileController;
 
-Route::get('/', [EventController::class, 'landingPage'])->name('landing');
-Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+Route::get('/', [PublicController::class, 'index'])->name('landing');
+Route::get('/event/{id}', [PublicController::class, 'show'])->name('events.show');
 
 Route::get('/dashboard', function () {
-    $role = Auth::user()->role;
+    $role = auth()->user()->role;
 
-    if ($role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    } elseif ($role === 'penyelenggara') {
-        return redirect()->route('penyelenggara.dashboard');
-    }
+    if ($role === 'admin') return redirect()->route('admin.dashboard');
+    if ($role === 'penyelenggara') return redirect()->route('penyelenggara.dashboard');
+    if ($role === 'mahasiswa') return redirect()->route('mahasiswa.dashboard');
 
-    return redirect()->route('landing');
+    return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', function () {
-            $totalUser = \App\Models\User::where('role', '!=', 'admin')->count();
-            $pendingEvents = \App\Models\Event::where('status', 'pending')->count();
-            $totalCategories = \App\Models\Category::count();
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-            return view('admin.dashboard', compact('totalUser', 'pendingEvents', 'totalCategories'));
-        })->name('dashboard');
+        Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+        Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
+        Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+        Route::patch('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+
+        Route::patch('/events/{id}/approve', [AdminController::class, 'approveEvent'])->name('events.approve');
+        Route::patch('/events/{id}/reject', [AdminController::class, 'rejectEvent'])->name('events.reject');
 
         Route::resource('categories', CategoryController::class);
     });
 
     Route::middleware('role:penyelenggara')->prefix('penyelenggara')->name('penyelenggara.')->group(function () {
-        Route::get('/dashboard', [EventController::class, 'index'])->name('dashboard');
-        Route::resource('events', EventController::class)->except(['show']);
-        Route::patch('/events/{event}/submit', [EventController::class, 'submit'])->name('events.submit');
+        Route::get('/dashboard', [PenyelenggaraController::class, 'dashboard'])->name('dashboard');
+        Route::resource('events', PenyelenggaraController::class);
+        Route::get('/events/{id}/participants', [PenyelenggaraController::class, 'eventParticipants'])->name('events.participants');
+        Route::patch('/events/{id}/submit', [PenyelenggaraController::class, 'submitForReview'])->name('events.submit');
+    });
+
+    Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+        Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('dashboard');
+        Route::get('/explore', [MahasiswaController::class, 'explore'])->name('explore');
+        Route::post('/event/{id}/daftar', [MahasiswaController::class, 'daftar'])->name('pendaftaran.store');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
