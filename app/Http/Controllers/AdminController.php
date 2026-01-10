@@ -100,4 +100,12 @@ public function storeUser(Request $request)
 
         return back()->with('error', "Event '{$event->title}' ditolak dan dikembalikan ke Draft.");
     }
+
+    public function showEvent($id)
+{
+    $event = Event::with(['user', 'category'])->findOrFail($id);
+
+    return view('admin.events.show', compact('event'));
+}
+
 }

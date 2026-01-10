@@ -12,6 +12,8 @@ Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.
 Route::get('/', [PublicController::class, 'index'])->name('landing');
 Route::get('/event/{id}', [PublicController::class, 'show'])->name('events.show');
 
+Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.show');
+
 Route::get('/dashboard', function () {
     $role = auth()->user()->role;
 
