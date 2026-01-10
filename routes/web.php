@@ -8,8 +8,11 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 
+Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.show');
 Route::get('/', [PublicController::class, 'index'])->name('landing');
 Route::get('/event/{id}', [PublicController::class, 'show'])->name('events.show');
+
+Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.show');
 
 Route::get('/dashboard', function () {
     $role = auth()->user()->role;
@@ -20,6 +23,7 @@ Route::get('/dashboard', function () {
 
     return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
 
@@ -34,6 +38,7 @@ Route::middleware('auth')->group(function () {
 
         Route::patch('/events/{id}/approve', [AdminController::class, 'approveEvent'])->name('events.approve');
         Route::patch('/events/{id}/reject', [AdminController::class, 'rejectEvent'])->name('events.reject');
+        Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.show');
 
         Route::resource('categories', CategoryController::class);
     });

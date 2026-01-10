@@ -1,33 +1,61 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Kategori') }}
-        </h2>
-    </x-slot>
+    <div class="max-w-2xl mx-auto">
+        <div class="mb-10">
+            <a href="{{ route('admin.categories.index') }}"
+                class="text-slate-400 hover:text-indigo-600 text-sm font-bold mb-4 inline-block transition">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Daftar Kategori
+            </a>
 
-    <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Edit Kategori</h1>
+            <p class="text-slate-500 text-sm font-medium">
+                Perbarui nama kategori: <span class="text-[#6366f1] font-bold">{{ $category->name }}</span>
+            </p>
+        </div>
 
-                <form action="{{ route('admin.categories.update', $category->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-bold mb-2">Nama Kategori</label>
-                        <input type="text" name="name" value="{{ old('name', $category->name) }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                        @error('name')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="flex justify-end gap-2">
-                        <a href="{{ route('admin.categories.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</a>
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Update</button>
-                    </div>
-                </form>
-
+        @if ($errors->any())
+            <div class="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl">
+                <div class="flex items-center gap-3 text-red-600 font-bold mb-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <h3>Gagal Menyimpan Perubahan</h3>
+                </div>
+                <ul class="list-disc list-inside text-sm text-red-500 space-y-1 ml-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
+        @endif
+
+        <div
+            class="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl shadow-indigo-500/5">
+            <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" class="space-y-6">
+                @csrf
+                @method('PUT')
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                        Nama Kategori
+                    </label>
+                    <input type="text" name="name" value="{{ old('name', $category->name) }}" required
+                        class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+
+                    @error('name')
+                        <p class="text-red-500 text-xs mt-2 font-bold">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-4">
+                    <a href="{{ route('admin.categories.index') }}"
+                        class="px-6 py-4 rounded-xl text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition uppercase tracking-widest text-xs">
+                        Batal
+                    </a>
+
+                    <button type="submit"
+                        class="px-8 py-4 bg-[#6366f1] hover:bg-indigo-700 text-white font-black rounded-xl shadow-lg shadow-indigo-500/30 transition-all uppercase tracking-widest text-xs">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i> Update
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </x-app-layout>

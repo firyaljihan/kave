@@ -85,7 +85,7 @@
                         </td>
                         <td class="p-6">
                             <div class="flex items-center justify-center gap-3">
-                                <a href="{{ route('events.show', $event->id) }}" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition" title="Lihat Detail">
+                                <a href="{{ route('admin.events.show', $event->id) }}" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition" title="Lihat Detail">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
 
