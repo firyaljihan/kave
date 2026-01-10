@@ -6,6 +6,8 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
 
 class AdminController extends Controller
 {
@@ -31,6 +33,32 @@ class AdminController extends Controller
 
         return view('admin.users.index', compact('users'));
     }
+
+    public function createUser()
+{
+    return view('admin.users.create');
+}
+
+public function storeUser(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255|unique:users,email',
+        'role' => 'required|in:admin,penyelenggara,mahasiswa',
+        'password' => 'required|string|min:5',
+    ]);
+
+    User::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'role' => $validated['role'],
+        'password' => Hash::make($validated['password']),
+    ]);
+
+    return redirect()
+        ->route('admin.users.index')
+        ->with('success', 'User baru berhasil dibuat!');
+}
 
     public function updateUser(Request $request, $id)
     {
