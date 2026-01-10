@@ -24,6 +24,7 @@ Route::get('/dashboard', function () {
     return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
 Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -37,6 +38,7 @@ Route::middleware('auth')->group(function () {
 
         Route::patch('/events/{id}/approve', [AdminController::class, 'approveEvent'])->name('events.approve');
         Route::patch('/events/{id}/reject', [AdminController::class, 'rejectEvent'])->name('events.reject');
+        Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.show');
 
         Route::resource('categories', CategoryController::class);
     });

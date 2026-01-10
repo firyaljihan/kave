@@ -5,46 +5,47 @@
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Dashboard Admin
         </a>
 
-        <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Review Event</h1>
-        <p class="text-slate-500 text-sm font-medium">
-            Detail event untuk proses persetujuan (approve / reject).
-        </p>
+        <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Detail Event (Admin)</h1>
+        <p class="text-slate-500 text-sm font-medium">Halaman review event untuk approve / reject.</p>
     </div>
 
-    @php
-        $status = $event->status;
-    @endphp
-
     <div class="grid lg:grid-cols-3 gap-8 items-start">
-        {{-- KIRI: Poster + Deskripsi --}}
+
+        {{-- KIRI: Poster + Konten --}}
         <div class="lg:col-span-2 space-y-8">
+
             <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-white/5 overflow-hidden shadow-xl shadow-indigo-500/5">
-                <img src="{{ asset('storage/' . $event->image) }}"
-                     alt="{{ $event->title }}"
-                     class="w-full h-auto object-cover">
+                @if($event->image)
+                    <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}"
+                        class="w-full h-auto object-cover">
+                @else
+                    <div class="p-12 text-center text-slate-400">
+                        Poster belum tersedia.
+                    </div>
+                @endif
             </div>
 
             <div class="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm">
                 <div class="flex flex-wrap items-center gap-3 mb-4">
-                    <span class="inline-flex items-center px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-100">
-                        {{ $event->category->name }}
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-100">
+                        {{ $event->category->name ?? '-' }}
                     </span>
 
-                    @if($status === 'published')
-                        <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Published
+                    @if($event->status === 'published')
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-black uppercase tracking-widest border border-green-200">
+                            Published
                         </span>
-                    @elseif($status === 'pending')
-                        <span class="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-yellow-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Pending Review
+                    @elseif($event->status === 'pending')
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-black uppercase tracking-widest border border-yellow-200">
+                            Pending
                         </span>
-                    @elseif($status === 'draft')
-                        <span class="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-200">
+                    @elseif($event->status === 'draft')
+                        <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-black uppercase tracking-widest border border-slate-200">
                             Draft
                         </span>
                     @else
-                        <span class="inline-flex items-center px-3 py-1 bg-red-100 text-red-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-200">
-                            Rejected
+                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-black uppercase tracking-widest border border-red-200">
+                            {{ $event->status }}
                         </span>
                     @endif
                 </div>
@@ -56,16 +57,16 @@
                 <div class="mt-4 flex flex-wrap items-center gap-6 text-sm font-medium text-slate-500">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-user-tie text-[#6366f1]"></i>
-                        <span>Penyelenggara: <span class="font-bold text-slate-800 dark:text-white">{{ $event->user->name }}</span></span>
+                        <span>Penyelenggara: <span class="font-bold text-slate-800 dark:text-white">{{ $event->user->name ?? '-' }}</span></span>
                     </div>
                     <div class="flex items-center gap-2">
                         <i class="fa-regular fa-calendar text-[#6366f1]"></i>
-                        <span>Dibuat: {{ $event->created_at->format('d M Y, H:i') }}</span>
+                        <span>Dibuat: {{ $event->created_at?->format('d M Y, H:i') }}</span>
                     </div>
                 </div>
 
                 <div class="mt-8">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-3">Deskripsi Event</h3>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-3">Deskripsi</h3>
                     <div class="text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                         {{ $event->description }}
                     </div>
@@ -75,6 +76,7 @@
 
         {{-- KANAN: Detail + Aksi --}}
         <div class="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
+
             <div class="bg-white dark:bg-slate-800 p-8 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm">
                 <h3 class="font-bold text-xl mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-circle-info text-[#6366f1]"></i> Detail Pelaksanaan
@@ -155,12 +157,13 @@
                         </form>
                     </div>
                 @else
-                    <div class="text-sm text-slate-500">
+                    <p class="text-sm text-slate-500">
                         Event ini statusnya <span class="font-bold">{{ $event->status }}</span>.
                         Tombol approve/reject hanya muncul saat status <span class="font-bold">pending</span>.
-                    </div>
+                    </p>
                 @endif
             </div>
+
         </div>
     </div>
 </x-app-layout>
