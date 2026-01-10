@@ -8,6 +8,7 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 
+Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.show');
 Route::get('/', [PublicController::class, 'index'])->name('landing');
 Route::get('/event/{id}', [PublicController::class, 'show'])->name('events.show');
 
