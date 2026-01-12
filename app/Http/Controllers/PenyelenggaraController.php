@@ -57,6 +57,7 @@ class PenyelenggaraController extends Controller
         ]);
 
         $imagePath = $request->file('image')->store('posters', 'public');
+        $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
 
         Event::create([
             'user_id'     => Auth::id(),
@@ -66,7 +67,7 @@ class PenyelenggaraController extends Controller
             'end_date'    => $request->end_date,
             'location'    => $request->location,
             'category_id' => $request->category_id,
-            'price'       => $request->price,
+            'price'       => $price,
             'image'       => $imagePath,
             'status'      => 'draft',
         ]);
@@ -101,6 +102,8 @@ class PenyelenggaraController extends Controller
         ]);
 
         $data = $request->except(['image']);
+        $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
+        $data['price'] = $price;
 
         if ($request->hasFile('image')) {
             if ($event->image) Storage::disk('public')->delete($event->image);

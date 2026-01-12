@@ -74,9 +74,14 @@
                 {{-- Harga --}}
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Harga Tiket (Rupiah)</label>
-                    <input type="number" name="price" value="{{ old('price', 0) }}" min="0" required
+                    <input type="text" name="price"
+                        value="{{ old('price', 0) }}"
+                        inputmode="numeric"
+                        placeholder="Contoh: 100000 atau 100.000"
                         class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
-                    <p class="text-[10px] text-slate-400 mt-2 ml-1">*Isi 0 jika gratis</p>
+                    <p class="text-xs text-slate-400 mt-2 font-medium">
+                        Tips: Untuk gratis isi <span class="font-bold">0</span>. Kamu boleh pakai titik ribuan (contoh 100.000).
+                    </p>
                 </div>
 
                 {{-- 2. TANGGAL MULAI (datetime-local) --}}
