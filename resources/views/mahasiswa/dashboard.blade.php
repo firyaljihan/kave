@@ -48,44 +48,38 @@
                             <div class="border-t border-dashed border-slate-200 dark:border-white/10 my-4"></div>
 
                             <div class="flex items-end justify-between">
-                                <div class="flex flex-col gap-2">
+    {{-- Kiri: Status --}}
+    <div class="flex flex-col gap-2">
+        @if($pendaftaran->status == 'confirmed')
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="text-xs font-bold text-green-600 uppercase tracking-wide">Confirmed</span>
+            </div>
 
-                                    {{-- LOGIKA STATUS & TOMBOL TIKET --}}
-                                    @if($pendaftaran->status == 'confirmed')
-                                        {{-- 1. Jika Confirmed: Tampilkan Status Hijau & Tombol Tiket --}}
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                            <span class="text-xs font-bold text-green-600 uppercase tracking-wide">Confirmed</span>
-                                        </div>
+        @elseif($pendaftaran->status == 'pending' && $pendaftaran->payment_proof)
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+                <span class="text-xs font-bold text-yellow-600 uppercase tracking-wide">Verifikasi</span>
+            </div>
+            <p class="text-[10px] text-slate-400 leading-tight">Bukti terkirim.<br>Menunggu admin.</p>
 
-                                        <a href="{{ route('mahasiswa.tiket.show', $pendaftaran->id) }}"
-                                           class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-600 transition shadow-lg shadow-indigo-500/20 mt-1">
-                                            <i class="fa-solid fa-qrcode"></i> Lihat Tiket
-                                        </a>
+        @else
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">{{ ucfirst($pendaftaran->status) }}</span>
+            </div>
+        @endif
+    </div>
 
-                                    @elseif($pendaftaran->status == 'pending' && $pendaftaran->payment_proof)
-                                        {{-- 2. Jika Pending TAPI ada Bukti Bayar: Tampilkan Status Kuning --}}
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
-                                            <span class="text-xs font-bold text-yellow-600 uppercase tracking-wide">Verifikasi</span>
-                                        </div>
-                                        <p class="text-[10px] text-slate-400 mt-1 leading-tight">Bukti terkirim.<br>Menunggu admin.</p>
+    {{-- Kanan: Tombol (menggantikan Detail) --}}
+    @if($pendaftaran->status == 'confirmed')
+        <a href="{{ route('mahasiswa.tiket.show', $pendaftaran->id) }}"
+           class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-600 transition shadow-lg shadow-indigo-500/20 mb-1">
+            <i class="fa-solid fa-qrcode"></i> Lihat Tiket
+        </a>
+    @endif
+</div>
 
-                                    @else
-                                        {{-- 3. Default Pending/Rejected --}}
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full bg-slate-300"></span>
-                                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">{{ ucfirst($pendaftaran->status) }}</span>
-                                        </div>
-                                    @endif
-
-                                </div>
-
-                                {{-- Link Detail --}}
-                                <a href="{{ route('events.show', $pendaftaran->event->id) }}" class="text-xs font-black text-[#6366f1] hover:underline uppercase tracking-widest mb-1">
-                                    Detail
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>
