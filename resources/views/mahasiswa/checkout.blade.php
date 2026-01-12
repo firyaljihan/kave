@@ -89,7 +89,7 @@
 
                 @if($event->price > 0)
                     <div class="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 mb-5">
-                        <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Instruksi Pembayaran (Demo)</div>
+                        <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Instruksi Pembayaran</div>
                         <div class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                             Silakan lakukan pembayaran ke:
                             <div class="mt-2 font-bold text-slate-800 dark:text-white">
@@ -97,9 +97,6 @@
                             </div>
                             <div class="text-slate-500">a.n {{ $event->bank_account_holder ?? '-' }}</div>
 
-                            <div class="mt-3 text-xs text-slate-400">
-                                *Untuk demo tugas: tidak perlu transfer beneran. Upload screenshot/foto sebagai “bukti”.
-                            </div>
                         </div>
                     </div>
                 @endif

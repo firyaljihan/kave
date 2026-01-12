@@ -53,30 +53,46 @@ document.addEventListener('DOMContentLoaded', () => {
         <form action="{{ route('penyelenggara.events.store') }}" method="POST" enctype="multipart/form-data" class="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl shadow-indigo-500/5 space-y-8">
             @csrf
 
-            {{-- 1. UPLOAD POSTER DENGAN PREVIEW --}}
-            <div>
+            {{-- 1. UPLOAD POSTER DENGAN PREVIEW & HOVER EFFECT --}}
+            <div class="mb-6">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Poster Event</label>
 
                 {{-- Container Upload --}}
-                <div id="upload-container" class="relative w-full h-64 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center text-slate-400 hover:border-[#6366f1] hover:text-[#6366f1] transition cursor-pointer group overflow-hidden">
+                <div class="relative w-full h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl hover:bg-slate-50 dark:hover:bg-white/5 transition flex justify-center items-center overflow-hidden bg-white dark:bg-slate-800 group">
 
-                    {{-- Input File (Invisible tapi bisa diklik) --}}
-                    <input type="file" name="image" required
-                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                           onchange="previewImage(event)">
+                    {{-- A. Gambar Preview (Default Hidden) --}}
+                    <img id="image-preview" class="absolute inset-0 w-full h-full object-cover hidden z-10">
 
-                    {{-- Placeholder (Icon Cloud & Teks) --}}
-                    <div id="placeholder" class="flex flex-col items-center justify-center w-full h-full transition-opacity duration-300">
-                        <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3 group-hover:scale-110 transition"></i>
-                        <p class="text-xs font-bold uppercase tracking-widest">Klik untuk upload poster</p>
-                        <p class="text-[10px] mt-1 opacity-60">PNG, JPG (Max 2MB)</p>
+                    {{-- B. Overlay "Ganti Gambar" (Muncul saat ada gambar & di-hover) --}}
+                    <div id="change-overlay" class="absolute inset-0 bg-black/50 z-20 flex flex-col items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none hidden group-hover:opacity-100">
+                        <i class="fa-solid fa-pen-to-square text-white text-3xl mb-2"></i>
+                        <p class="text-white text-xs font-bold uppercase tracking-widest">Ganti Poster</p>
                     </div>
 
-                    {{-- Preview Image (Hidden Awalnya) --}}
-                    <img id="preview" src="#" alt="Preview Poster" class="hidden absolute inset-0 w-full h-full object-cover z-10">
+                    {{-- C. Placeholder (Icon Awan) --}}
+                    <div id="image-placeholder" class="text-center p-6 transition-opacity duration-300">
+                        <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-bold text-slate-600 dark:text-slate-300">Klik untuk upload poster</p>
+                        <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG (Max 2MB)</p>
+                        {{-- Nama File yang dipilih --}}
+                        <p id="file-name" class="text-xs text-indigo-600 font-bold mt-2 truncate max-w-xs mx-auto"></p>
+                    </div>
+
+                    {{-- D. Input File (Invisible & di paling atas Z-Index) --}}
+                    <input type="file"
+                           name="image"
+                           id="image"
+                           accept="image/*"
+                           required
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30"
+                           onchange="previewImage(event)">
                 </div>
 
-                @error('image') <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p> @enderror
+                @error('image')
+                    <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
@@ -187,23 +203,41 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <script>
+        // Fungsi Preview Image yang AMAN (Tidak hilang saat cancel)
         function previewImage(event) {
             const input = event.target;
-            const preview = document.getElementById('preview');
-            const placeholder = document.getElementById('placeholder');
-            const container = document.getElementById('upload-container');
+            const preview = document.getElementById('image-preview');
+            const placeholder = document.getElementById('image-placeholder');
+            const fileName = document.getElementById('file-name');
+            const overlay = document.getElementById('change-overlay');
 
-            if (input.files && input.files[0]) {
+            // Cek jika user cancel (file length 0) -> Return, jangan reset gambar
+            if (!input.files || input.files.length === 0) {
+                return;
+            }
+
+            if (input.files[0]) {
                 const reader = new FileReader();
+
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
-                    container.classList.remove('border-dashed', 'border-2');
+
+                    // Sembunyikan placeholder icon
+                    placeholder.classList.add('opacity-0');
+
+                    // Aktifkan overlay untuk hover
+                    overlay.classList.remove('hidden');
+                }
+
+                // Tampilkan nama file
+                fileName.textContent = "Terpilih: " + input.files[0].name;
+
                 reader.readAsDataURL(input.files[0]);
             }
-        }}
+        }
 
+        // Logic Validasi Tanggal
         document.addEventListener('DOMContentLoaded', function() {
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
