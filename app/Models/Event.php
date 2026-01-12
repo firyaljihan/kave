@@ -18,8 +18,12 @@ class Event extends Model
         'image',
         'status',
         'user_id',
-        'category_id'
+        'category_id',
+        'bank_name',
+        'bank_account_number',
+        'bank_account_holder'
     ];
+    
     // Relasi
     public function user()
     {
