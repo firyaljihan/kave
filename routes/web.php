@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/explore', [MahasiswaController::class, 'explore'])->name('explore');
         Route::post('/event/{id}/daftar', [MahasiswaController::class, 'daftar'])->name('pendaftaran.store');
         Route::get('/event/{id}/checkout', [MahasiswaController::class, 'checkout'])->name('checkout');
+        Route::get('/tiket/{id}', [MahasiswaController::class, 'showTicket'])->name('tiket.show');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

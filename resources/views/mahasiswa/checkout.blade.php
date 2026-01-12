@@ -97,9 +97,6 @@
                             </div>
                             <div class="text-slate-500">a.n {{ $event->bank_account_holder ?? '-' }}</div>
 
-                            <div class="mt-3 text-xs text-slate-400">
-                                *Untuk demo tugas: tidak perlu transfer beneran. Upload screenshot/foto sebagai “bukti”.
-                            </div>
                         </div>
                     </div>
                 @endif
