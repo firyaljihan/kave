@@ -7,6 +7,8 @@ use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\Category;
+
 
 class MahasiswaController extends Controller
 {
@@ -33,21 +35,31 @@ class MahasiswaController extends Controller
 
         return view('mahasiswa.dashboard', compact('activeEvents', 'historyEvents'));
     }
-    public function explore(Request $request)
-    {
-        $search = $request->input('search');
+   public function explore(Request $request)
+{
+    $search = $request->input('search');
+    $categoryId = $request->input('category_id');
 
-        $events = Event::with('category')
-            ->where('status', 'published')
-            ->when($search, function ($query, $search) {
-                return $query->where('title', 'like', "%{$search}%")
-                             ->orWhere('location', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->get();
+    $events = Event::with('category')
+        ->where('status', 'published')
+        ->when($search, function ($query, $search) {
+            // biar orWhere-nya rapi (nggak nabrak filter lain)
+            return $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        })
+        ->when($categoryId, function ($query, $categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+        ->latest()
+        ->get();
 
-        return view('mahasiswa.explore', compact('events'));
-    }
+    $categories = Category::orderBy('name')->get();
+
+    return view('mahasiswa.explore', compact('events', 'categories'));
+}
+
 
     public function daftar(Request $request, $id)
     {
@@ -75,5 +87,6 @@ class MahasiswaController extends Controller
 
         return redirect()->route('mahasiswa.dashboard')
             ->with('success', "Berhasil mendaftar ke event: {$event->title}");
+            
     }
 }

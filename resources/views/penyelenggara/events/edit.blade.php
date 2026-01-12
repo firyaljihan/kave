@@ -63,22 +63,27 @@
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Harga
                         Tiket (Rupiah)</label>
-                    <input type="number" name="price" min="0" required value="{{ old('price', $event->price) }}"
-                        class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
-                    <p class="text-[10px] text-slate-400 mt-2 ml-1">*Isi 0 jika gratis</p>
+                    <input type="text" name="price"
+                    value="{{ old('price', $event->price) }}"
+                    inputmode="numeric"
+                    placeholder="Contoh: 100000 atau 100.000"
+                    class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Tanggal
                         Mulai</label>
-                    <input type="date" name="start_date" required value="{{ old('start_date', $event->start_date) }}"
+                    <input type="datetime-local" name="start_date" required
+                        value="{{ old('start_date', \Carbon\Carbon::parse($event->start_date)->format('Y-m-d\TH:i')) }}"
                         class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all text-slate-500">
+
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Tanggal
                         Selesai</label>
-                    <input type="date" name="end_date" required value="{{ old('end_date', $event->end_date) }}"
+                    <input type="datetime-local" name="end_date" required
+                        value="{{ old('end_date', \Carbon\Carbon::parse($event->end_date)->format('Y-m-d\TH:i')) }}"
                         class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all text-slate-500">
                 </div>
 

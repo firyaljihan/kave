@@ -5,11 +5,33 @@
             <p class="text-slate-500 text-sm font-medium">Temukan kegiatan seru untuk diikuti.</p>
         </div>
 
-        <form action="{{ route('mahasiswa.explore') }}" method="GET" class="relative w-full sm:w-72">
+        <form action="{{ route('mahasiswa.explore') }}" method="GET"
+      class="w-full flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-end">
+
+        <div class="relative w-full sm:w-72">
             <input type="text" name="search" placeholder="Cari event..." value="{{ request('search') }}"
-                class="w-full pl-12 pr-4 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1] transition text-sm">
+                class="w-full pl-12 pr-4 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1] transition text-sm">
             <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-        </form>
+        </div>
+
+        <div class="w-full sm:w-60">
+            <select name="category_id"
+                class="w-full px-4 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1] transition text-sm text-slate-700 dark:text-slate-200">
+                <option value="">Semua Kategori</option>
+                @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}" @selected(request('category_id') == $cat->id)>
+                        {{ $cat->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+    <button type="submit"
+        class="px-6 py-3 bg-[#6366f1] hover:bg-indigo-700 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20 transition uppercase tracking-widest text-xs">
+        Filter
+    </button>
+</form>
+
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
