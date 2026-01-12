@@ -161,4 +161,25 @@ class PenyelenggaraController extends Controller
         return redirect()->route('penyelenggara.events.index')
             ->with('success', 'Event berhasil diajukan ke Admin!');
     }
+    public function confirmPayment($id)
+{
+    $pendaftaran = Pendaftaran::with('event')->findOrFail($id);
+
+    if ($pendaftaran->event->user_id !== Auth::id()) abort(403);
+
+    $pendaftaran->update(['status' => 'confirmed']);
+
+    return back()->with('success', 'Pembayaran dikonfirmasi. Tiket peserta menjadi SUCCESS.');
+}
+
+    public function rejectPayment($id)
+    {
+        $pendaftaran = Pendaftaran::with('event')->findOrFail($id);
+
+        if ($pendaftaran->event->user_id !== Auth::id()) abort(403);
+
+        $pendaftaran->update(['status' => 'rejected']);
+
+        return back()->with('success', 'Pendaftaran ditolak.');
+    }
 }
