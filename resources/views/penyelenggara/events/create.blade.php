@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     container.classList.remove('border-dashed', 'border-2');
                 reader.readAsDataURL(input.files[0]);
             }
-        }
+        }}
 
         document.addEventListener('DOMContentLoaded', function() {
             const startDateInput = document.getElementById('start_date');
