@@ -28,7 +28,51 @@
                         <th class="p-6">Nama Mahasiswa</th>
                         <th class="p-6">Email</th>
                         <th class="p-6">Tanggal Daftar</th>
-                        <th class="p-6">Status</th>
+                        <td class="p-6">
+                            @if($data->status === 'confirmed')
+                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase tracking-wide">
+                                    <i class="fa-solid fa-check"></i> Success
+                                </span>
+                            @elseif($data->status === 'pending')
+                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-[10px] font-bold uppercase tracking-wide">
+                                    <i class="fa-solid fa-clock"></i> Pending
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-bold uppercase tracking-wide">
+                                    <i class="fa-solid fa-xmark"></i> Rejected
+                                </span>
+                            @endif
+                        </td>
+                        <td class="p-6">
+                            @if($data->payment_proof)
+                                <a href="{{ asset('storage/' . $data->payment_proof) }}" target="_blank"
+                                class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition">
+                                    <i class="fa-solid fa-receipt mr-2"></i> Lihat Bukti
+                                </a>
+                            @else
+                                <span class="text-xs text-slate-400">-</span>
+                            @endif
+
+                            @if($data->status === 'pending')
+                                <div class="mt-3 flex gap-2">
+                                    <form action="{{ route('penyelenggara.pendaftarans.confirm', $data->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="px-3 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-xs font-black uppercase tracking-widest">
+                                            Approve
+                                        </button>
+                                    </form>
+
+                                    <form action="{{ route('penyelenggara.pendaftarans.reject', $data->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="px-3 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-black uppercase tracking-widest">
+                                            Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        </td>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-white/5">

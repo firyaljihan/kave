@@ -143,14 +143,10 @@
 
                     @auth
                         @if(Auth::user()->role === 'mahasiswa')
-                            <form action="{{ route('mahasiswa.pendaftaran.store', $event->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    onclick="return confirm('Apakah Anda yakin ingin mendaftar event ini? Data Anda akan dikirim ke penyelenggara.')"
-                                    class="w-full py-4 bg-[#6366f1] hover:bg-indigo-700 text-white font-black rounded-xl shadow-lg shadow-indigo-500/30 transition-all transform hover:-translate-y-1 text-sm uppercase tracking-widest flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-pen-nib"></i> Daftar Sekarang
-                                </button>
-                            </form>
+                            <a href="{{ route('mahasiswa.checkout', $event->id) }}"
+                            class="inline-flex items-center justify-center w-full py-4 bg-[#6366f1] hover:bg-indigo-700 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/30 transition uppercase tracking-widest text-xs">
+                            <i class="fa-solid fa-ticket mr-2"></i> Daftar
+                            </a>
 
                         @else
                             <div class="bg-slate-100 text-slate-500 p-4 rounded-xl text-center text-sm font-medium">
