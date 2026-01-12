@@ -1,28 +1,33 @@
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const priceInput = document.querySelector('input[name="price"]');
-  const bankSection = document.getElementById('bankSection');
-  if (!priceInput || !bankSection) return;
+    // Logic untuk Toggle Rekening Bank (Jika berbayar)
+    document.addEventListener('DOMContentLoaded', () => {
+        const priceInput = document.querySelector('input[name="price"]');
+        const bankSection = document.getElementById('bankSection');
+        if (!priceInput || !bankSection) return;
 
-  const bankInputs = bankSection.querySelectorAll(
-    'input[name="bank_name"], input[name="bank_account_number"], input[name="bank_account_holder"]'
-  );
+        const bankInputs = bankSection.querySelectorAll(
+            'input[name="bank_name"], input[name="bank_account_number"], input[name="bank_account_holder"]'
+        );
 
-  const normalizePrice = (value) => {
-    const digits = String(value ?? '').replace(/[^\d]/g, ''); // 100.000 / 100,000
-    return digits ? parseInt(digits, 10) : 0;
-  };
+        const normalizePrice = (value) => {
+            const digits = String(value ?? '').replace(/[^\d]/g, ''); // support 100.000 / 100,000
+            return digits ? parseInt(digits, 10) : 0;
+        };
 
-  const toggleBankSection = () => {
-    const price = normalizePrice(priceInput.value);
-    const show = price > 0;
-    bankSection.classList.toggle('hidden', !show);
-    bankInputs.forEach((input) => input.required = show);
-  };
+        const toggleBankSection = () => {
+            const price = normalizePrice(priceInput.value);
+            const show = price > 0; // tampil hanya kalau berbayar
+            bankSection.classList.toggle('hidden', !show);
 
-  priceInput.addEventListener('input', toggleBankSection);
-  toggleBankSection();
-});
+            // optional: kalau muncul, jadi required
+            bankInputs.forEach((input) => {
+                input.required = show;
+            });
+        };
+
+        priceInput.addEventListener('input', toggleBankSection);
+        toggleBankSection(); // biar edit page otomatis kebaca dari value awal
+    });
 </script>
 
 <x-app-layout>
@@ -53,30 +58,46 @@ document.addEventListener('DOMContentLoaded', () => {
         <form action="{{ route('penyelenggara.events.store') }}" method="POST" enctype="multipart/form-data" class="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl shadow-indigo-500/5 space-y-8">
             @csrf
 
-            {{-- 1. UPLOAD POSTER DENGAN PREVIEW --}}
-            <div>
+            {{-- 1. UPLOAD POSTER DENGAN PREVIEW & HOVER EFFECT --}}
+            <div class="mb-6">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Poster Event</label>
 
                 {{-- Container Upload --}}
-                <div id="upload-container" class="relative w-full h-64 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center text-slate-400 hover:border-[#6366f1] hover:text-[#6366f1] transition cursor-pointer group overflow-hidden">
+                <div class="relative w-full h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl hover:bg-slate-50 dark:hover:bg-white/5 transition flex justify-center items-center overflow-hidden bg-white dark:bg-slate-800 group">
 
-                    {{-- Input File (Invisible tapi bisa diklik) --}}
-                    <input type="file" name="image" required
-                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                           onchange="previewImage(event)">
+                    {{-- A. Gambar Preview (Default Hidden) --}}
+                    <img id="image-preview" class="absolute inset-0 w-full h-full object-cover hidden z-10">
 
-                    {{-- Placeholder (Icon Cloud & Teks) --}}
-                    <div id="placeholder" class="flex flex-col items-center justify-center w-full h-full transition-opacity duration-300">
-                        <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3 group-hover:scale-110 transition"></i>
-                        <p class="text-xs font-bold uppercase tracking-widest">Klik untuk upload poster</p>
-                        <p class="text-[10px] mt-1 opacity-60">PNG, JPG (Max 2MB)</p>
+                    {{-- B. Overlay "Ganti Gambar" (Muncul saat ada gambar & di-hover) --}}
+                    <div id="change-overlay" class="absolute inset-0 bg-black/50 z-20 flex flex-col items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none hidden group-hover:opacity-100">
+                        <i class="fa-solid fa-pen-to-square text-white text-3xl mb-2"></i>
+                        <p class="text-white text-xs font-bold uppercase tracking-widest">Ganti Poster</p>
                     </div>
 
-                    {{-- Preview Image (Hidden Awalnya) --}}
-                    <img id="preview" src="#" alt="Preview Poster" class="hidden absolute inset-0 w-full h-full object-cover z-10">
+                    {{-- C. Placeholder (Icon Awan) --}}
+                    <div id="image-placeholder" class="text-center p-6 transition-opacity duration-300">
+                        <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-bold text-slate-600 dark:text-slate-300">Klik untuk upload poster</p>
+                        <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG (Max 2MB)</p>
+                        {{-- Nama File yang dipilih --}}
+                        <p id="file-name" class="text-xs text-indigo-600 font-bold mt-2 truncate max-w-xs mx-auto"></p>
+                    </div>
+
+                    {{-- D. Input File (Invisible & di paling atas Z-Index) --}}
+                    <input type="file"
+                           name="image"
+                           id="image"
+                           accept="image/*"
+                           required
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30"
+                           onchange="previewImage(event)">
                 </div>
 
-                @error('image') <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p> @enderror
+                @error('image')
+                    <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
@@ -112,40 +133,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 {{-- REKENING PEMBAYARAN --}}
-                <div id="bankSection" class="md:col-span-2 hidden">
-                    <div class="p-6 sm:p-7 rounded-[2rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                            Rekening Pembayaran
-                        </p>
-
-                        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Nama Bank</label>
-                                <input type="text" name="bank_name"
-                                    value="{{ old('bank_name') }}"
-                                    placeholder="Contoh: BCA / BNI"
-                                    class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                    <div id="bankSection" class="sm:col-span-2 hidden">
+                        <div class="p-6 sm:p-7 rounded-[2rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                <div>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                                        Rekening Pembayaran
+                                    </p>
+                                </div>
                             </div>
 
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">No. Rekening</label>
-                                <input type="text" name="bank_account_number"
-                                    value="{{ old('bank_account_number') }}"
-                                    placeholder="Contoh: 1234567890"
-                                    class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
-                            </div>
+                            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        Nama Bank
+                                    </label>
+                                    <input type="text" name="bank_name"
+                                        value="{{ old('bank_name', $event->bank_name ?? '') }}"
+                                        placeholder="Contoh: BCA / BNI"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
 
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Atas Nama</label>
-                                <input type="text" name="bank_account_holder"
-                                    value="{{ old('bank_account_holder') }}"
-                                    placeholder="Contoh: HMSI Tel-U"
-                                    class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        No. Rekening
+                                    </label>
+                                    <input type="text" name="bank_account_number"
+                                        value="{{ old('bank_account_number', $event->bank_account_number ?? '') }}"
+                                        placeholder="Contoh: 1234567890"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        Atas Nama
+                                    </label>
+                                    <input type="text" name="bank_account_holder"
+                                        value="{{ old('bank_account_holder', $event->bank_account_holder ?? '') }}"
+                                        placeholder="Contoh: HMSI Tel-U"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
 
                 {{-- 2. TANGGAL MULAI (datetime-local) --}}
                 <div>
@@ -187,23 +217,41 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <script>
+        // Fungsi Preview Image yang AMAN (Tidak hilang saat cancel)
         function previewImage(event) {
             const input = event.target;
-            const preview = document.getElementById('preview');
-            const placeholder = document.getElementById('placeholder');
-            const container = document.getElementById('upload-container');
+            const preview = document.getElementById('image-preview');
+            const placeholder = document.getElementById('image-placeholder');
+            const fileName = document.getElementById('file-name');
+            const overlay = document.getElementById('change-overlay');
 
-            if (input.files && input.files[0]) {
+            // Cek jika user cancel (file length 0) -> Return, jangan reset gambar
+            if (!input.files || input.files.length === 0) {
+                return;
+            }
+
+            if (input.files[0]) {
                 const reader = new FileReader();
+
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
-                    container.classList.remove('border-dashed', 'border-2');
+
+                    // Sembunyikan placeholder icon
+                    placeholder.classList.add('opacity-0');
+
+                    // Aktifkan overlay untuk hover
+                    overlay.classList.remove('hidden');
+                }
+
+                // Tampilkan nama file
+                fileName.textContent = "Terpilih: " + input.files[0].name;
+
                 reader.readAsDataURL(input.files[0]);
             }
-        }}
+        }
 
+        // Logic Validasi Tanggal
         document.addEventListener('DOMContentLoaded', function() {
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
