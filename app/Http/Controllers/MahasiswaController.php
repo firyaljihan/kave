@@ -87,5 +87,6 @@ class MahasiswaController extends Controller
 
         return redirect()->route('mahasiswa.dashboard')
             ->with('success', "Berhasil mendaftar ke event: {$event->title}");
+            
     }
 }
