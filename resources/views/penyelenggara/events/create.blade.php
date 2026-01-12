@@ -1,3 +1,33 @@
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const priceInput = document.querySelector('input[name="price"]');
+  const bankSection = document.getElementById('bankSection');
+  if (!priceInput || !bankSection) return;
+
+  const bankInputs = bankSection.querySelectorAll(
+    'input[name="bank_name"], input[name="bank_account_number"], input[name="bank_account_holder"]'
+  );
+
+  const normalizePrice = (value) => {
+    const digits = String(value ?? '').replace(/[^\d]/g, ''); // support 100.000 / 100,000
+    return digits ? parseInt(digits, 10) : 0;
+  };
+
+  const toggleBankSection = () => {
+    const price = normalizePrice(priceInput.value);
+    const show = price > 0; // tampil hanya kalau berbayar
+    bankSection.classList.toggle('hidden', !show);
+
+    // optional: kalau muncul, jadi required
+    bankInputs.forEach((input) => {
+      input.required = show;
+    });
+  };
+
+  priceInput.addEventListener('input', toggleBankSection);
+  toggleBankSection(); // biar edit page otomatis kebaca dari value awal
+});
+</script>
 <x-app-layout>
     <div class="max-w-4xl mx-auto">
         <div class="mb-10">
@@ -84,29 +114,50 @@
                     </p>
                 </div>
 
-                <div class="mt-6">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
-                        Rekening Pembayaran (wajib kalau berbayar)
-                    </label>
+                {{-- REKENING PEMBAYARAN --}}
+                    <div id="bankSection" class="sm:col-span-2 hidden">
+                        <div class="p-6 sm:p-7 rounded-[2rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                <div>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                                        Rekening Pembayaran
+                                    </p>
+                                </div>
+                            </div>
 
-                    <div class="grid sm:grid-cols-3 gap-3">
-                        <input type="text" name="bank_name" value="{{ old('bank_name', $event->bank_name ?? '') }}"
-                            placeholder="Bank (BCA/BNI/BRI)"
-                            class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        Nama Bank
+                                    </label>
+                                    <input type="text" name="bank_name"
+                                        value="{{ old('bank_name', $event->bank_name ?? '') }}"
+                                        placeholder="Contoh: BCA / BNI"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
 
-                        <input type="text" name="bank_account_number" value="{{ old('bank_account_number', $event->bank_account_number ?? '') }}"
-                            placeholder="No. Rekening"
-                            class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        No. Rekening
+                                    </label>
+                                    <input type="text" name="bank_account_number"
+                                        value="{{ old('bank_account_number', $event->bank_account_number ?? '') }}"
+                                        placeholder="Contoh: 1234567890"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
 
-                        <input type="text" name="bank_account_holder" value="{{ old('bank_account_holder', $event->bank_account_holder ?? '') }}"
-                            placeholder="Atas Nama"
-                            class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        Atas Nama
+                                    </label>
+                                    <input type="text" name="bank_account_holder"
+                                        value="{{ old('bank_account_holder', $event->bank_account_holder ?? '') }}"
+                                        placeholder="Contoh: HMSI Tel-U"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <p class="text-xs text-slate-400 mt-2 font-medium">
-                        Untuk demo: isi rekening <span class="font-bold">dummy</span> juga boleh.
-                    </p>
-                </div>
 
                 {{-- 2. TANGGAL MULAI (datetime-local) --}}
                 <div>
@@ -147,9 +198,7 @@
         </form>
     </div>
 
-    {{-- SCRIPT: PREVIEW IMAGE & VALIDASI TANGGAL --}}
     <script>
-        // 1. Fungsi Preview Image
         function previewImage(event) {
             const input = event.target;
             const preview = document.getElementById('preview');
@@ -162,31 +211,24 @@
                     preview.src = e.target.result;
                     preview.classList.remove('hidden');
                     placeholder.classList.add('hidden');
-                    container.classList.remove('border-dashed', 'border-2'); // Hilangkan border putus-putus
-                }
+                    container.classList.remove('border-dashed', 'border-2');
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // 2. Logic Validasi Tanggal & Jam
         document.addEventListener('DOMContentLoaded', function() {
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
 
-            // Set waktu minimal Start Date ke "Sekarang"
             const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Sesuaikan timezone lokal user
-            const currentDateTime = now.toISOString().slice(0, 16); // Format YYYY-MM-DDTHH:mm
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const currentDateTime = now.toISOString().slice(0, 16);
 
             startDateInput.min = currentDateTime;
 
-            // Update End Date saat Start Date dipilih
             startDateInput.addEventListener('change', function() {
                 if (this.value) {
-                    // Tanggal Selesai minimal harus sama dengan Tanggal Mulai
                     endDateInput.min = this.value;
-
-                    // Jika End Date yang sudah diisi ternyata lebih kecil dari Start Date baru -> Reset
                     if (endDateInput.value && endDateInput.value < this.value) {
                         endDateInput.value = '';
                         alert('Waktu selesai harus setelah waktu mulai!');
