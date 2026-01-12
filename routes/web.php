@@ -13,9 +13,12 @@ Route::get('/event/{id}', [PublicController::class, 'show'])->name('events.show'
 
 Route::get('/dashboard', function () {
     $role = auth()->user()->role;
-    if ($role === 'admin') return redirect()->route('admin.dashboard');
-    if ($role === 'penyelenggara') return redirect()->route('penyelenggara.dashboard');
-    if ($role === 'mahasiswa') return redirect()->route('mahasiswa.dashboard');
+    if ($role === 'admin')
+        return redirect()->route('admin.dashboard');
+    if ($role === 'penyelenggara')
+        return redirect()->route('penyelenggara.dashboard');
+    if ($role === 'mahasiswa')
+        return redirect()->route('mahasiswa.dashboard');
     return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -43,7 +46,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/events/{id}/participants', [PenyelenggaraController::class, 'eventParticipants'])->name('events.participants');
         Route::patch('/events/{id}/submit', [PenyelenggaraController::class, 'submitForReview'])->name('events.submit');
-
+        Route::get('/scan', [PenyelenggaraController::class, 'scan'])->name('scan.index');
+        Route::post('/scan', [PenyelenggaraController::class, 'verify'])->name('scan.verify');
         Route::post('/payment/{id}/confirm', [PenyelenggaraController::class, 'confirmPayment'])->name('payment.confirm');
         Route::post('/payment/{id}/reject', [PenyelenggaraController::class, 'rejectPayment'])->name('payment.reject');
     });
@@ -61,4 +65,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
