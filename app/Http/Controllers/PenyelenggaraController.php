@@ -11,17 +11,17 @@ use Illuminate\Support\Facades\Storage;
 
 class PenyelenggaraController extends Controller
 {
-     public function dashboard()
+    public function dashboard()
     {
         $userId = Auth::id();
 
         $totalEvents = Event::where('user_id', $userId)->count();
 
         $activeEvents = Event::where('user_id', $userId)
-                             ->where('status', 'published')
-                             ->count();
+            ->where('status', 'published')
+            ->count();
 
-        $totalParticipants = Pendaftaran::whereHas('event', function($q) use ($userId) {
+        $totalParticipants = Pendaftaran::whereHas('event', function ($q) use ($userId) {
             $q->where('user_id', $userId);
         })->count();
 
@@ -29,6 +29,7 @@ class PenyelenggaraController extends Controller
 
         return view('penyelenggara.dashboard', compact('totalEvents', 'activeEvents', 'totalParticipants', 'recentEvents'));
     }
+
     public function index()
     {
         $events = Event::where('user_id', Auth::id())->latest()->get();
@@ -46,33 +47,36 @@ class PenyelenggaraController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'start_date'  => 'required|date',
-            'end_date'    => 'required|date|after:start_date',
-            'location'    => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'location' => 'required|string',
             'category_id' => 'required|exists:categories,id',
-            'image'       => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'price'       => 'required|numeric|min:0',
-            'bank_name' => $request->bank_name,
-            'bank_account_number' => $request->bank_account_number,
-            'bank_account_holder' => $request->bank_account_holder
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'price' => 'required|numeric|min:0',
+            'bank_name' => 'nullable|string',
+            'bank_account_number' => 'nullable|string',
+            'bank_account_holder' => 'nullable|string',
         ]);
 
         $imagePath = $request->file('image')->store('posters', 'public');
         $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
 
         Event::create([
-            'user_id'     => Auth::id(),
-            'title'       => $request->title,
+            'user_id' => Auth::id(),
+            'title' => $request->title,
             'description' => $request->description,
-            'start_date'  => $request->start_date,
-            'end_date'    => $request->end_date,
-            'location'    => $request->location,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'location' => $request->location,
             'category_id' => $request->category_id,
-            'price'       => $price,
-            'image'       => $imagePath,
-            'status'      => 'draft',
+            'price' => $price,
+            'image' => $imagePath,
+            'status' => 'draft',
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->bank_account_number,
+            'account_name' => $request->bank_account_holder,
         ]);
 
         return redirect()->route('penyelenggara.events.index')
@@ -83,26 +87,46 @@ class PenyelenggaraController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        if ($event->user_id !== Auth::id()) abort(403);
+        if ($event->user_id !== Auth::id())
+            abort(403);
 
         $categories = Category::all();
         return view('penyelenggara.events.edit', compact('event', 'categories'));
     }
+
     public function update(Request $request, $id)
     {
         $event = Event::findOrFail($id);
-        if ($event->user_id !== Auth::id()) abort(403);
+        if ($event->user_id !== Auth::id())
+            abort(403);
 
         $request->validate([
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'start_date'  => 'required|date',
-            'end_date'    => 'required|date|after:start_date',
-            'location'    => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'location' => 'required|string',
             'category_id' => 'required|exists:categories,id',
-            'price'       => 'required|numeric|min:0',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'bank_name' => 'nullable|string',
+            'bank_account_number' => 'nullable|string',
+            'bank_account_holder' => 'nullable|string',
         ]);
+        $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
+
+        $data = [
+            'title' => $request->title,
+            'description' => $request->description,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'location' => $request->location,
+            'category_id' => $request->category_id,
+            'price' => $price,
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->bank_account_number,
+            'account_name' => $request->bank_account_holder,
+        ];
 
         $data = $request->except(['image']);
         $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
@@ -112,7 +136,8 @@ class PenyelenggaraController extends Controller
         $data['bank_account_holder'] = $request->bank_account_holder;
 
         if ($request->hasFile('image')) {
-            if ($event->image) Storage::disk('public')->delete($event->image);
+            if ($event->image)
+                Storage::disk('public')->delete($event->image);
             $data['image'] = $request->file('image')->store('posters', 'public');
         }
 
@@ -125,9 +150,11 @@ class PenyelenggaraController extends Controller
     public function destroy($id)
     {
         $event = Event::findOrFail($id);
-        if ($event->user_id !== Auth::id()) abort(403);
+        if ($event->user_id !== Auth::id())
+            abort(403);
 
-        if ($event->image) Storage::disk('public')->delete($event->image);
+        if ($event->image)
+            Storage::disk('public')->delete($event->image);
         $event->delete();
 
         return back()->with('success', 'Event berhasil dihapus.');
@@ -137,7 +164,8 @@ class PenyelenggaraController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        if ($event->user_id !== Auth::id()) abort(403);
+        if ($event->user_id !== Auth::id())
+            abort(403);
 
         $pendaftarans = Pendaftaran::with('user')
             ->where('event_id', $id)
@@ -150,7 +178,8 @@ class PenyelenggaraController extends Controller
     public function submitForReview($id)
     {
         $event = Event::findOrFail($id);
-        if ($event->user_id !== Auth::id()) abort(403);
+        if ($event->user_id !== Auth::id())
+            abort(403);
 
         if ($event->status !== 'draft') {
             return back()->with('error', 'Event tidak dapat diajukan.');
