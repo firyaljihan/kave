@@ -200,4 +200,54 @@ class PenyelenggaraController extends Controller
 
         return back()->with('success', 'Pendaftaran ditolak.');
     }
+
+    // --- FITUR SCANNER ---
+    public function scan()
+    {
+        return view('penyelenggara.scan');
+    }
+
+    public function verify(Request $request)
+    {
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+
+        // Format QR kita: "KAVE-TIKET-{ID}-{EMAIL}"
+        try {
+            // Pecah string berdasarkan tanda "-"
+            $parts = explode('-', $request->qr_code);
+
+            // Validasi format dasar (Harus ada KAVE, TIKET, dan ID)
+            if (count($parts) < 3 || $parts[0] !== 'KAVE' || $parts[1] !== 'TIKET') {
+                return back()->with('error', 'Format QR Code tidak dikenali/salah aplikasi.');
+            }
+
+            $ticketId = $parts[2]; // Ambil ID Tiket
+
+            // Cari Tiket di Database
+            $ticket = Pendaftaran::with(['event', 'user'])->find($ticketId);
+
+            if (!$ticket) {
+                return back()->with('error', 'Tiket tidak ditemukan di database.');
+            }
+
+            // Validasi Kepemilikan Event
+            // Pastikan tiket ini untuk event milik penyelenggara yang sedang login
+            if ($ticket->event->user_id !== Auth::id()) {
+                return back()->with('error', 'Tiket ini untuk event orang lain, bukan event Anda.');
+            }
+
+            // Validasi Status Tiket
+            if ($ticket->status !== 'confirmed') {
+                return back()->with('error', 'Tiket belum Valid (Status: ' . $ticket->status . ').');
+            }
+
+            // Jika Lolos semua pengecekan -> SUKSES
+            return back()->with('success_scan', $ticket);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
+    }
 }

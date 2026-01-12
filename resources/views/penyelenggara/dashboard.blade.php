@@ -1,7 +1,18 @@
 <x-app-layout>
-    <div class="mb-10">
-        <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Dashboard Penyelenggara</h1>
-        <p class="text-slate-500 text-sm font-medium">Pantau performa event dan partisipasi mahasiswa.</p>
+    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Dashboard Penyelenggara</h1>
+            <p class="text-slate-500 text-sm font-medium">Pantau performa event dan partisipasi mahasiswa.</p>
+        </div>
+
+        {{-- TOMBOL AKSES SCANNER --}}
+        <div>
+            <a href="{{ route('penyelenggara.scan.index') }}"
+               class="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-2xl font-bold transition shadow-lg shadow-slate-900/20 group">
+                <i class="fa-solid fa-qrcode group-hover:scale-110 transition-transform"></i>
+                <span>Scan Tiket</span>
+            </a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
