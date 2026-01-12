@@ -46,29 +46,36 @@ class PenyelenggaraController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'start_date'  => 'required|date',
-            'end_date'    => 'required|date|after:start_date',
-            'location'    => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'location' => 'required|string',
             'category_id' => 'required|exists:categories,id',
-            'image'       => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'price'       => 'required|numeric|min:0',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'price' => 'required|numeric|min:0',
+            'bank_name' => 'nullable|string',
+            'bank_account_number' => 'nullable|string',
+            'bank_account_holder' => 'nullable|string',
         ]);
 
         $imagePath = $request->file('image')->store('posters', 'public');
+        $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
 
         Event::create([
-            'user_id'     => Auth::id(),
-            'title'       => $request->title,
+            'user_id' => Auth::id(),
+            'title' => $request->title,
             'description' => $request->description,
-            'start_date'  => $request->start_date,
-            'end_date'    => $request->end_date,
-            'location'    => $request->location,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'location' => $request->location,
             'category_id' => $request->category_id,
-            'price'       => $request->price,
-            'image'       => $imagePath,
-            'status'      => 'draft',
+            'price' => $price,
+            'image' => $imagePath,
+            'status' => 'draft',
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->bank_account_number,
+            'account_name' => $request->bank_account_holder,
         ]);
 
         return redirect()->route('penyelenggara.events.index')
