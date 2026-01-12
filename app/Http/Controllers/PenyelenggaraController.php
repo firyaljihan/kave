@@ -108,6 +108,11 @@ class PenyelenggaraController extends Controller
         ]);
 
         $data = $request->except(['image']);
+        $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
+        $data['price'] = $price;
+        $data['bank_name'] = $request->bank_name;
+        $data['bank_account_number'] = $request->bank_account_number;
+        $data['bank_account_holder'] = $request->bank_account_holder;
 
         if ($request->hasFile('image')) {
             if ($event->image) Storage::disk('public')->delete($event->image);

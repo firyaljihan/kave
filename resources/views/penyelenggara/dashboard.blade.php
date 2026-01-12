@@ -55,10 +55,14 @@
                         <td class="p-6">
                             @if($event->status == 'published')
                                 <span class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-[10px] font-bold uppercase">Published</span>
+                            @elseif($event->status == 'pending')
+                                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold uppercase">Pending</span>
                             @elseif($event->status == 'draft')
                                 <span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold uppercase">Draft</span>
-                            @else
+                            @elseif($event->status == 'rejected')
                                 <span class="px-3 py-1 bg-red-100 text-red-600 rounded-full text-[10px] font-bold uppercase">Rejected</span>
+                            @else
+                                <span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold uppercase">{{ $event->status }}</span>
                             @endif
                         </td>
                     </tr>

@@ -7,6 +7,8 @@ use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\Category;
+
 
 class MahasiswaController extends Controller
 {
@@ -33,21 +35,31 @@ class MahasiswaController extends Controller
 
         return view('mahasiswa.dashboard', compact('activeEvents', 'historyEvents'));
     }
-    public function explore(Request $request)
-    {
-        $search = $request->input('search');
+   public function explore(Request $request)
+{
+    $search = $request->input('search');
+    $categoryId = $request->input('category_id');
 
-        $events = Event::with('category')
-            ->where('status', 'published')
-            ->when($search, function ($query, $search) {
-                return $query->where('title', 'like', "%{$search}%")
-                             ->orWhere('location', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->get();
+    $events = Event::with('category')
+        ->where('status', 'published')
+        ->when($search, function ($query, $search) {
+            // biar orWhere-nya rapi (nggak nabrak filter lain)
+            return $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        })
+        ->when($categoryId, function ($query, $categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+        ->latest()
+        ->get();
 
-        return view('mahasiswa.explore', compact('events'));
-    }
+    $categories = Category::orderBy('name')->get();
+
+    return view('mahasiswa.explore', compact('events', 'categories'));
+}
+
 
     public function daftar(Request $request, $id)
     {
@@ -66,14 +78,44 @@ class MahasiswaController extends Controller
             return back()->with('error', 'Kamu sudah terdaftar di event ini!');
         }
 
+        // GRATIS: langsung confirmed (success)
+        if ((int)$event->price === 0) {
+            Pendaftaran::create([
+                'user_id' => $user->id,
+                'event_id' => $event->id,
+                'status' => 'confirmed',
+            ]);
+
+            return redirect()->route('mahasiswa.dashboard')
+                ->with('success', "Berhasil daftar (GRATIS): {$event->title}");
+        }
+
+        // BERBAYAR: wajib upload bukti (demo)
+        $request->validate([
+            'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $proofPath = $request->file('payment_proof')->store('payments', 'public');
+
         Pendaftaran::create([
             'user_id' => $user->id,
             'event_id' => $event->id,
-            'status' => 'confirmed',
-            'created_at' => now(),
+            'status' => 'pending',
+            'payment_proof' => $proofPath,
+            'payment_uploaded_at' => now(),
         ]);
 
         return redirect()->route('mahasiswa.dashboard')
-            ->with('success', "Berhasil mendaftar ke event: {$event->title}");
+            ->with('success', "Bukti pembayaran terkirim. Menunggu konfirmasi penyelenggara.");
+    }
+    public function checkout($id)
+    {
+        $event = Event::with(['category', 'user'])->findOrFail($id);
+
+        if ($event->status !== 'published') {
+            return back()->with('error', 'Event tidak dapat diakses.');
+        }
+
+        return view('mahasiswa.checkout', compact('event'));
     }
 }
