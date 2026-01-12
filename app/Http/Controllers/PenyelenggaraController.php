@@ -74,9 +74,10 @@ class PenyelenggaraController extends Controller
             'price'       => $price,
             'image'       => $imagePath,
             'status'      => 'draft',
-            'bank_name'      => $request->bank_name,
-            'account_number' => $request->bank_account_number,
-            'account_name'   => $request->bank_account_holder,
+            'bank_name' => $request->bank_name,
+            'bank_account_number' => $request->bank_account_number,
+            'bank_account_holder' => $request->bank_account_holder,
+
         ]);
 
         return redirect()->route('penyelenggara.events.index')
