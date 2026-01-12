@@ -7,9 +7,7 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    /**
-     * Menampilkan daftar kategori
-     */
+
     public function index()
     {
         $categories = Category::latest()->get();
@@ -17,17 +15,11 @@ class CategoryController extends Controller
         return view('admin.categories.index', compact('categories'));
     }
 
-    /**
-     * Menampilkan form tambah kategori
-     */
     public function create()
     {
         return view('admin.categories.create');
     }
 
-    /**
-     * Menyimpan kategori baru ke database
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -41,17 +33,11 @@ class CategoryController extends Controller
             ->with('success', 'Kategori berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form edit kategori
-     */
     public function edit(Category $category)
     {
         return view('admin.categories.edit', compact('category'));
     }
 
-    /**
-     * Mengupdate kategori
-     */
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
@@ -65,12 +51,8 @@ class CategoryController extends Controller
             ->with('success', 'Kategori berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus kategori
-     */
     public function destroy(Category $category)
     {
-        // Jika kategori masih digunakan oleh event, jangan hapus
         if ($category->events()->exists()) {
             return back()->with(
                 'error',

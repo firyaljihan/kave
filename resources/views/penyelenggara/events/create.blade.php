@@ -123,9 +123,7 @@
         </form>
     </div>
 
-    {{-- SCRIPT: PREVIEW IMAGE & VALIDASI TANGGAL --}}
     <script>
-        // 1. Fungsi Preview Image
         function previewImage(event) {
             const input = event.target;
             const preview = document.getElementById('preview');
@@ -138,31 +136,24 @@
                     preview.src = e.target.result;
                     preview.classList.remove('hidden');
                     placeholder.classList.add('hidden');
-                    container.classList.remove('border-dashed', 'border-2'); // Hilangkan border putus-putus
-                }
+                    container.classList.remove('border-dashed', 'border-2');
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // 2. Logic Validasi Tanggal & Jam
         document.addEventListener('DOMContentLoaded', function() {
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
 
-            // Set waktu minimal Start Date ke "Sekarang"
             const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Sesuaikan timezone lokal user
-            const currentDateTime = now.toISOString().slice(0, 16); // Format YYYY-MM-DDTHH:mm
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const currentDateTime = now.toISOString().slice(0, 16);
 
             startDateInput.min = currentDateTime;
 
-            // Update End Date saat Start Date dipilih
             startDateInput.addEventListener('change', function() {
                 if (this.value) {
-                    // Tanggal Selesai minimal harus sama dengan Tanggal Mulai
                     endDateInput.min = this.value;
-
-                    // Jika End Date yang sudah diisi ternyata lebih kecil dari Start Date baru -> Reset
                     if (endDateInput.value && endDateInput.value < this.value) {
                         endDateInput.value = '';
                         alert('Waktu selesai harus setelah waktu mulai!');
