@@ -37,8 +37,30 @@
 
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                <span class="text-xs font-bold text-green-600 uppercase tracking-wide">Terdaftar</span>
+                               @php
+                                 $status = $pendaftaran->status;
+                                @endphp
+                                @if($status === 'confirmed')
+                                <span class="inline-flex items-center gap-2 text-green-600 text-xs font-bold">
+                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                    SUCCESS
+                                </span>
+                                @elseif($status === 'pending')
+                                <span class="inline-flex items-center gap-2 text-yellow-700 text-xs font-bold">
+                                    <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                    MENUNGGU KONFIRMASI
+                                </span>
+                                @elseif($status === 'rejected')
+                                <span class="inline-flex items-center gap-2 text-red-600 text-xs font-bold">
+                                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                    DITOLAK
+                                </span>
+                                @else
+                                <span class="inline-flex items-center gap-2 text-slate-500 text-xs font-bold">
+                                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                    {{ strtoupper($status) }}
+                                </span>
+                                @endif
                             </div>
                             <a href="{{ route('events.show', $pendaftaran->event->id) }}" class="text-xs font-black text-[#6366f1] hover:underline uppercase tracking-widest">
                                 Lihat Detail
