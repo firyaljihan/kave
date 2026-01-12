@@ -54,9 +54,13 @@ class PenyelenggaraController extends Controller
             'category_id' => 'required|exists:categories,id',
             'image'       => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'price'       => 'required|numeric|min:0',
+            'bank_name' => $request->bank_name,
+            'bank_account_number' => $request->bank_account_number,
+            'bank_account_holder' => $request->bank_account_holder
         ]);
 
         $imagePath = $request->file('image')->store('posters', 'public');
+        $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
 
         Event::create([
             'user_id'     => Auth::id(),
@@ -66,7 +70,7 @@ class PenyelenggaraController extends Controller
             'end_date'    => $request->end_date,
             'location'    => $request->location,
             'category_id' => $request->category_id,
-            'price'       => $request->price,
+            'price'       => $price,
             'image'       => $imagePath,
             'status'      => 'draft',
         ]);
@@ -101,6 +105,11 @@ class PenyelenggaraController extends Controller
         ]);
 
         $data = $request->except(['image']);
+        $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
+        $data['price'] = $price;
+        $data['bank_name'] = $request->bank_name;
+        $data['bank_account_number'] = $request->bank_account_number;
+        $data['bank_account_holder'] = $request->bank_account_holder;
 
         if ($request->hasFile('image')) {
             if ($event->image) Storage::disk('public')->delete($event->image);
@@ -151,5 +160,26 @@ class PenyelenggaraController extends Controller
 
         return redirect()->route('penyelenggara.events.index')
             ->with('success', 'Event berhasil diajukan ke Admin!');
+    }
+    public function confirmPayment($id)
+{
+    $pendaftaran = Pendaftaran::with('event')->findOrFail($id);
+
+    if ($pendaftaran->event->user_id !== Auth::id()) abort(403);
+
+    $pendaftaran->update(['status' => 'confirmed']);
+
+    return back()->with('success', 'Pembayaran dikonfirmasi. Tiket peserta menjadi SUCCESS.');
+}
+
+    public function rejectPayment($id)
+    {
+        $pendaftaran = Pendaftaran::with('event')->findOrFail($id);
+
+        if ($pendaftaran->event->user_id !== Auth::id()) abort(403);
+
+        $pendaftaran->update(['status' => 'rejected']);
+
+        return back()->with('success', 'Pendaftaran ditolak.');
     }
 }

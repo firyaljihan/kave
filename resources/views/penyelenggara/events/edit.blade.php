@@ -1,3 +1,33 @@
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const priceInput = document.querySelector('input[name="price"]');
+  const bankSection = document.getElementById('bankSection');
+  if (!priceInput || !bankSection) return;
+
+  const bankInputs = bankSection.querySelectorAll(
+    'input[name="bank_name"], input[name="bank_account_number"], input[name="bank_account_holder"]'
+  );
+
+  const normalizePrice = (value) => {
+    const digits = String(value ?? '').replace(/[^\d]/g, ''); // support 100.000 / 100,000
+    return digits ? parseInt(digits, 10) : 0;
+  };
+
+  const toggleBankSection = () => {
+    const price = normalizePrice(priceInput.value);
+    const show = price > 0; // tampil hanya kalau berbayar
+    bankSection.classList.toggle('hidden', !show);
+
+    // optional: kalau muncul, jadi required
+    bankInputs.forEach((input) => {
+      input.required = show;
+    });
+  };
+
+  priceInput.addEventListener('input', toggleBankSection);
+  toggleBankSection(); // biar edit page otomatis kebaca dari value awal
+});
+</script>
 <x-app-layout>
     <div class="max-w-4xl mx-auto">
         <div class="mb-10">
@@ -63,10 +93,56 @@
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Harga
                         Tiket (Rupiah)</label>
-                    <input type="number" name="price" min="0" required value="{{ old('price', $event->price) }}"
-                        class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
-                    <p class="text-[10px] text-slate-400 mt-2 ml-1">*Isi 0 jika gratis</p>
+                    <input type="text" name="price"
+                    value="{{ old('price', $event->price) }}"
+                    inputmode="numeric"
+                    placeholder="Contoh: 100000 atau 100.000"
+                    class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
                 </div>
+
+                 <div id="bankSection" class="sm:col-span-2 hidden">
+                        <div class="p-6 sm:p-7 rounded-[2rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                <div>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                                        Rekening Pembayaran
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        Nama Bank
+                                    </label>
+                                    <input type="text" name="bank_name"
+                                        value="{{ old('bank_name', $event->bank_name ?? '') }}"
+                                        placeholder="Contoh: BCA / BNI"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        No. Rekening
+                                    </label>
+                                    <input type="text" name="bank_account_number"
+                                        value="{{ old('bank_account_number', $event->bank_account_number ?? '') }}"
+                                        placeholder="Contoh: 1234567890"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                                        Atas Nama
+                                    </label>
+                                    <input type="text" name="bank_account_holder"
+                                        value="{{ old('bank_account_holder', $event->bank_account_holder ?? '') }}"
+                                        placeholder="Contoh: HMSI Tel-U"
+                                        class="w-full px-5 py-4 text-base bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-[#6366f1]/20 focus:border-[#6366f1] transition-all">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Tanggal

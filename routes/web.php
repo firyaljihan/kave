@@ -48,12 +48,15 @@ Route::middleware('auth')->group(function () {
         Route::resource('events', PenyelenggaraController::class);
         Route::get('/events/{id}/participants', [PenyelenggaraController::class, 'eventParticipants'])->name('events.participants');
         Route::patch('/events/{id}/submit', [PenyelenggaraController::class, 'submitForReview'])->name('events.submit');
+        Route::patch('/pendaftarans/{id}/confirm', [PenyelenggaraController::class, 'confirmPayment'])->name('pendaftarans.confirm');
+        Route::patch('/pendaftarans/{id}/reject', [PenyelenggaraController::class, 'rejectPayment'])->name('pendaftarans.reject');
     });
 
     Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
         Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('dashboard');
         Route::get('/explore', [MahasiswaController::class, 'explore'])->name('explore');
         Route::post('/event/{id}/daftar', [MahasiswaController::class, 'daftar'])->name('pendaftaran.store');
+        Route::get('/event/{id}/checkout', [MahasiswaController::class, 'checkout'])->name('checkout');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
