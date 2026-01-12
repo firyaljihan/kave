@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pendaftaran extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'event_id', 'status'];
+   protected $fillable = ['user_id', 'event_id', 'status', 'payment_proof', 'payment_uploaded_at'];
 
     public function user()
     {
