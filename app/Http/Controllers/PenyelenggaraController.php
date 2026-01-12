@@ -113,8 +113,6 @@ class PenyelenggaraController extends Controller
             'bank_account_number' => 'nullable|string',
             'bank_account_holder' => 'nullable|string',
         ]);
-
-<<<<<<< HEAD
         $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
 
         $data = [
@@ -129,14 +127,13 @@ class PenyelenggaraController extends Controller
             'account_number' => $request->bank_account_number,
             'account_name' => $request->bank_account_holder,
         ];
-=======
+
         $data = $request->except(['image']);
         $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
         $data['price'] = $price;
         $data['bank_name'] = $request->bank_name;
         $data['bank_account_number'] = $request->bank_account_number;
         $data['bank_account_holder'] = $request->bank_account_holder;
->>>>>>> b959a63c399d4c8087b9a7a7030aa35e1c1ec8ee
 
         if ($request->hasFile('image')) {
             if ($event->image)

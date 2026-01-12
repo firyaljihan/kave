@@ -43,7 +43,6 @@ class MahasiswaController extends Controller
     $events = Event::with('category')
         ->where('status', 'published')
         ->when($search, function ($query, $search) {
-            // biar orWhere-nya rapi (nggak nabrak filter lain)
             return $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('location', 'like', "%{$search}%");
