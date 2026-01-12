@@ -8,22 +8,16 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 
-Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.show');
 Route::get('/', [PublicController::class, 'index'])->name('landing');
 Route::get('/event/{id}', [PublicController::class, 'show'])->name('events.show');
 
-Route::get('/events/{id}', [AdminController::class, 'showEvent'])->name('events.show');
-
 Route::get('/dashboard', function () {
     $role = auth()->user()->role;
-
     if ($role === 'admin') return redirect()->route('admin.dashboard');
     if ($role === 'penyelenggara') return redirect()->route('penyelenggara.dashboard');
     if ($role === 'mahasiswa') return redirect()->route('mahasiswa.dashboard');
-
     return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 
 Route::middleware('auth')->group(function () {
 
@@ -46,10 +40,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:penyelenggara')->prefix('penyelenggara')->name('penyelenggara.')->group(function () {
         Route::get('/dashboard', [PenyelenggaraController::class, 'dashboard'])->name('dashboard');
         Route::resource('events', PenyelenggaraController::class);
+
         Route::get('/events/{id}/participants', [PenyelenggaraController::class, 'eventParticipants'])->name('events.participants');
         Route::patch('/events/{id}/submit', [PenyelenggaraController::class, 'submitForReview'])->name('events.submit');
-        Route::patch('/pendaftarans/{id}/confirm', [PenyelenggaraController::class, 'confirmPayment'])->name('pendaftarans.confirm');
-        Route::patch('/pendaftarans/{id}/reject', [PenyelenggaraController::class, 'rejectPayment'])->name('pendaftarans.reject');
+
+        Route::post('/payment/{id}/confirm', [PenyelenggaraController::class, 'confirmPayment'])->name('payment.confirm');
+        Route::post('/payment/{id}/reject', [PenyelenggaraController::class, 'rejectPayment'])->name('payment.reject');
     });
 
     Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
