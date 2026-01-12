@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('dashboard');
         Route::get('/explore', [MahasiswaController::class, 'explore'])->name('explore');
         Route::post('/event/{id}/daftar', [MahasiswaController::class, 'daftar'])->name('pendaftaran.store');
+        Route::get('/event/{id}/checkout', [MahasiswaController::class, 'checkout'])->name('checkout');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

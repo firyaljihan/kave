@@ -78,15 +78,44 @@ class MahasiswaController extends Controller
             return back()->with('error', 'Kamu sudah terdaftar di event ini!');
         }
 
+        // GRATIS: langsung confirmed (success)
+        if ((int)$event->price === 0) {
+            Pendaftaran::create([
+                'user_id' => $user->id,
+                'event_id' => $event->id,
+                'status' => 'confirmed',
+            ]);
+
+            return redirect()->route('mahasiswa.dashboard')
+                ->with('success', "Berhasil daftar (GRATIS): {$event->title}");
+        }
+
+        // BERBAYAR: wajib upload bukti (demo)
+        $request->validate([
+            'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $proofPath = $request->file('payment_proof')->store('payments', 'public');
+
         Pendaftaran::create([
             'user_id' => $user->id,
             'event_id' => $event->id,
-            'status' => 'confirmed',
-            'created_at' => now(),
+            'status' => 'pending',
+            'payment_proof' => $proofPath,
+            'payment_uploaded_at' => now(),
         ]);
 
         return redirect()->route('mahasiswa.dashboard')
-            ->with('success', "Berhasil mendaftar ke event: {$event->title}");
-            
+            ->with('success', "Bukti pembayaran terkirim. Menunggu konfirmasi penyelenggara.");
+    }
+    public function checkout($id)
+    {
+        $event = Event::with(['category', 'user'])->findOrFail($id);
+
+        if ($event->status !== 'published') {
+            return back()->with('error', 'Event tidak dapat diakses.');
+        }
+
+        return view('mahasiswa.checkout', compact('event'));
     }
 }
