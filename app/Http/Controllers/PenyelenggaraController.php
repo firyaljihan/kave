@@ -54,6 +54,9 @@ class PenyelenggaraController extends Controller
             'category_id' => 'required|exists:categories,id',
             'image'       => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'price'       => 'required|numeric|min:0',
+            'bank_name' => $request->bank_name,
+            'bank_account_number' => $request->bank_account_number,
+            'bank_account_holder' => $request->bank_account_holder
         ]);
 
         $imagePath = $request->file('image')->store('posters', 'public');
@@ -104,6 +107,9 @@ class PenyelenggaraController extends Controller
         $data = $request->except(['image']);
         $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
         $data['price'] = $price;
+        $data['bank_name'] = $request->bank_name;
+        $data['bank_account_number'] = $request->bank_account_number;
+        $data['bank_account_holder'] = $request->bank_account_holder;
 
         if ($request->hasFile('image')) {
             if ($event->image) Storage::disk('public')->delete($event->image);
