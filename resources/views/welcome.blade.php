@@ -96,7 +96,7 @@
                     $features = [
                         ['icon' => 'fa-bolt-lightning', 'title' => 'Update Cepat', 'desc' => 'Dapatkan info event kampus terbaru secara real-time langsung dari organisasi mahasiswa.'],
                         ['icon' => 'fa-id-card-clip', 'title' => 'Akses Mudah', 'desc' => 'Pendaftaran simpel menggunakan data mahasiswa, tidak perlu isi form panjang berkali-kali.'],
-                        ['icon' => 'fa-award', 'title' => 'E-Sertifikat', 'desc' => 'Semua sertifikat kegiatanmu tersimpan rapi dalam satu dashboard untuk portofolio masa depan.']
+                        ['icon' => 'fa-award', 'title' => 'Terpercaya', 'desc' => 'Semua data user terjamin keamanannya dan semua event diawasi oleh pihak kampus']
                     ];
                 @endphp
                 @foreach($features as $f)
