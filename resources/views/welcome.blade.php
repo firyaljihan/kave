@@ -170,7 +170,7 @@
                         Punya event keren? <br>Publikasikan di Kave.
                     </h2>
                     <p class="text-slate-300 max-w-2xl mx-auto mb-12 text-base lg:text-xl leading-relaxed">
-                        Tinggalkan email Anda di bawah ini. Tim kami akan segera menghubungi Anda untuk membantu proses publikasi event di ekosistem Telkom University Surabaya.
+                        Hubungi kami di WhatsApp. Tim kami akan segera menghubungi Anda untuk membantu proses publikasi event di sistem manajemen event Telkom University Surabaya.
                     </p>
 
                     <div class="mt-8 flex justify-center gap-4">

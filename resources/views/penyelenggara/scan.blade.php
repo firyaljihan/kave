@@ -62,13 +62,24 @@
         @endif
     </div>
 
+    {{-- Script Utama --}}
     <script>
         const beepSound = new Audio("{{ asset('sounds/beep.mp3') }}");
 
         function onScanSuccess(decodedText, decodedResult) {
+            // 1. Masukkan data ke input hidden
             document.getElementById('result').value = decodedText;
-            html5QrcodeScanner.clear();
-            document.getElementById('scanForm').submit();
+
+            // 2. STOP scanner dengan benar sebelum submit
+            // html5QrcodeScanner.clear() adalah Promise, kita harus tunggu (.then)
+            // agar DOM tidak dihancurkan paksa sebelum library siap.
+            html5QrcodeScanner.clear().then(_ => {
+                document.getElementById('scanForm').submit();
+            }).catch(error => {
+                // Jika gagal clear, tetap paksa submit agar tidak macet
+                console.warn("Gagal membersihkan scanner, tetap submit...", error);
+                document.getElementById('scanForm').submit();
+            });
         }
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
@@ -79,6 +90,7 @@
         html5QrcodeScanner.render(onScanSuccess);
     </script>
 
+    {{-- Styling CSS (Sama Persis dengan Punya Kamu) --}}
     <style>
         #reader {
             display: flex !important;
@@ -120,14 +132,13 @@
             width: 100% !important;
         }
 
-        /* Styling Dropdown Kamera */
         #reader__dashboard_section_csr select {
             appearance: none !important;
-            background-color: #f1f5f9 !important; /* Slate-100 */
+            background-color: #f1f5f9 !important;
             color: #334155 !important;
             border: 1px solid #cbd5e1 !important;
             padding: 12px 24px !important;
-            border-radius: 12px !important;
+            border-radius: 12px;
             font-weight: bold !important;
             font-size: 13px !important;
             text-align: center !important;
@@ -138,9 +149,8 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
         }
 
-        /* Styling Tombol (Start/Stop/Request Permission) */
         #reader button {
-            background-color: #4f46e5 !important; /* Indigo-600 */
+            background-color: #4f46e5 !important;
             color: white !important;
             border: none !important;
             padding: 14px 28px !important;
@@ -158,20 +168,17 @@
             background-color: #4338ca !important;
         }
 
-        /* Link "Scan Image File" */
         #reader__dashboard_section_swaplink {
             order: 3 !important;
             margin-top: 5px !important;
             font-size: 12px !important;
             font-weight: bold !important;
             text-decoration: none !important;
-            color: #64748b !important; /* Slate-500 */
+            color: #64748b !important;
         }
 
-        /* Hilangkan elemen yang tidak perlu */
         #reader__header_message { display: none !important; }
 
-        /* Animasi Laser */
         @keyframes scanAnimation {
             0% { top: 10%; opacity: 0; }
             50% { opacity: 1; }

@@ -20,7 +20,7 @@ class PenyelenggaraController extends Controller
 
         $activeEvents = Event::where('user_id', $userId)
             ->where('status', 'published')
-            ->whereDate('end_date', '>=', Carbon::now()) // Filter Expired
+            ->whereDate('end_date', '>=', Carbon::now())
             ->count();
 
         $totalParticipants = Pendaftaran::whereHas('event', function ($q) use ($userId) {
@@ -117,7 +117,6 @@ class PenyelenggaraController extends Controller
 
         $price = (int) preg_replace('/[^\d]/', '', $request->input('price'));
 
-        // PERBAIKAN DI SINI: Mapping data yang benar dan JANGAN ditimpa lagi
         $data = [
             'title'       => $request->title,
             'description' => $request->description,
@@ -164,7 +163,9 @@ class PenyelenggaraController extends Controller
             ->latest()
             ->get();
 
-        return view('penyelenggara.events.participants', compact('event', 'pendaftarans'));
+        $pesertaHadir = $pendaftarans->where('is_checked_in', true);
+
+        return view('penyelenggara.events.participants', compact('event', 'pendaftarans', 'pesertaHadir'));
     }
 
     public function submitForReview($id)
@@ -204,7 +205,6 @@ class PenyelenggaraController extends Controller
         return back()->with('success', 'Pendaftaran ditolak.');
     }
 
-    // --- FITUR SCANNER ---
     public function scan()
     {
         return view('penyelenggara.scan');
@@ -216,37 +216,35 @@ class PenyelenggaraController extends Controller
             'qr_code' => 'required|string',
         ]);
 
-        // Format QR kita: "KAVE-TIKET-{ID}-{EMAIL}"
         try {
-            // Pecah string berdasarkan tanda "-"
             $parts = explode('-', $request->qr_code);
 
-            // Validasi format dasar (Harus ada KAVE, TIKET, dan ID)
             if (count($parts) < 3 || $parts[0] !== 'KAVE' || $parts[1] !== 'TIKET') {
                 return back()->with('error', 'Format QR Code tidak dikenali/salah aplikasi.');
             }
 
-            $ticketId = $parts[2]; // Ambil ID Tiket
+            $ticketId = $parts[2];
 
-            // Cari Tiket di Database
             $ticket = Pendaftaran::with(['event', 'user'])->find($ticketId);
 
             if (!$ticket) {
                 return back()->with('error', 'Tiket tidak ditemukan di database.');
             }
 
-            // Validasi Kepemilikan Event
-            // Pastikan tiket ini untuk event milik penyelenggara yang sedang login
             if ($ticket->event->user_id !== Auth::id()) {
                 return back()->with('error', 'Tiket ini untuk event orang lain, bukan event Anda.');
             }
 
-            // Validasi Status Tiket
             if ($ticket->status !== 'confirmed') {
                 return back()->with('error', 'Tiket belum Valid (Status: ' . $ticket->status . ').');
             }
 
-            // Jika Lolos semua pengecekan -> SUKSES
+            if ($ticket->is_checked_in) {
+                return back()->with('error', 'GAGAL! Tiket ini SUDAH DIPAKAI (Check-in sebelumnya).');
+            }
+
+            $ticket->update(['is_checked_in' => true]);
+
             return back()->with('success_scan', $ticket);
 
         } catch (\Exception $e) {
