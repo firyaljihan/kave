@@ -18,22 +18,6 @@
             </a>
         </div>
 
-        {{-- Alerts --}}
-        @if(session('success'))
-            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl flex items-center gap-3 text-green-700 font-bold text-sm">
-                <i class="fa-solid fa-check-circle text-lg"></i>
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-700 font-bold text-sm">
-                <i class="fa-solid fa-circle-xmark text-lg"></i>
-                {{ session('error') }}
-            </div>
-        @endif
-
-        {{-- Card Table --}}
         <div class="bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-white/5 overflow-hidden shadow-xl shadow-indigo-500/5">
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
