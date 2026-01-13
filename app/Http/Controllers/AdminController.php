@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 
 class AdminController extends Controller
@@ -14,7 +15,11 @@ class AdminController extends Controller
     public function dashboard()
     {
         $totalUser = User::where('role', '!=', 'admin')->count();
-        $totalEvents = Event::count();
+
+        $totalEvents = Event::where('status', 'published')
+                            ->whereDate('end_date', '>=', Carbon::now())
+                            ->count();
+
         $totalCategories = Category::count();
 
         $antrianEvents = Event::with(['user', 'category'])
@@ -109,8 +114,10 @@ public function storeUser(Request $request)
     }
     public function publishedEvents()
     {
-        $events = \App\Models\Event::with(['user', 'category'])
+
+        $events = Event::with(['user', 'category'])
             ->where('status', 'published')
+            ->whereDate('end_date', '>=', Carbon::now())
             ->latest()
             ->get();
 
@@ -119,18 +126,18 @@ public function storeUser(Request $request)
 
     public function destroyPublishedEvent($id)
     {
-        $event = \App\Models\Event::findOrFail($id);
+        $event = Event::findOrFail($id);
 
-        // "Hapus dari tampilan user" = unpublish (AMAN, tidak merusak tiket/pendaftaran)
+        
         if ($event->status !== 'published') {
-            return back()->with('error', 'Event ini belum published / sudah diturunkan.');
+            return back()->with('error', 'Event ini tidak dalam status published.');
         }
 
         $event->update(['status' => 'draft']);
 
         return redirect()
             ->route('admin.events.published')
-            ->with('success', 'Event berhasil diturunkan (tidak tampil di user).');
+            ->with('success', 'Event berhasil diturunkan (dikembalikan ke Draft). Total event telah diperbarui.');
     }
 
 }

@@ -8,6 +8,7 @@ use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class PenyelenggaraController extends Controller
 {
@@ -19,6 +20,7 @@ class PenyelenggaraController extends Controller
 
         $activeEvents = Event::where('user_id', $userId)
             ->where('status', 'published')
+            ->whereDate('end_date', '>=', Carbon::now()) // Filter Expired
             ->count();
 
         $totalParticipants = Pendaftaran::whereHas('event', function ($q) use ($userId) {

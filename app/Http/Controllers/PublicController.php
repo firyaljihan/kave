@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon; // <--- 1. WAJIB DITAMBAHKAN
 
 class PublicController extends Controller
 {
@@ -17,7 +18,7 @@ class PublicController extends Controller
                 return redirect()->route('admin.dashboard');
             }
             if ($role === 'penyelenggara') {
-                return redirect()->route(route: 'penyelenggara.dashboard');
+                return redirect()->route('penyelenggara.dashboard'); // Note: syntax route: di hapus biar standar
             }
             if ($role === 'mahasiswa') {
                 return redirect()->route('mahasiswa.dashboard');
@@ -26,6 +27,7 @@ class PublicController extends Controller
 
         $events = Event::with(['category', 'user'])
             ->where('status', 'published')
+            ->whereDate('end_date', '>=', Carbon::now()) // <--- 2. LOGIKA OTOMATIS HILANG (Expired)
             ->latest()
             ->take(6)
             ->get();
@@ -35,6 +37,9 @@ class PublicController extends Controller
 
     public function show($id)
     {
+        // Opsional: Kalau mau link event lama tetap bisa dibuka (untuk history), biarkan seperti ini.
+        // Tapi kalau mau link event lama jadi 404 (tidak ditemukan), tambahkan whereDate di sini juga.
+
         $event = Event::with(['category', 'user'])
             ->where('status', 'published')
             ->findOrFail($id);
