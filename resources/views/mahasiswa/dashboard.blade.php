@@ -4,12 +4,12 @@
         <p class="text-slate-500 text-sm font-medium">Daftar event yang Anda ikuti.</p>
     </div>
 
-    @if(session('success'))
+    {{-- @if(session('success'))
         <div class="mb-8 p-4 bg-green-50 border border-green-200 rounded-2xl flex items-center gap-3 text-green-700 font-bold text-sm">
             <i class="fa-solid fa-check-circle text-lg"></i>
             {{ session('success') }}
         </div>
-    @endif
+    @endif --}}
 
     <div class="mb-12">
         <h3 class="flex items-center gap-3 text-lg font-bold text-slate-800 dark:text-white mb-6">
