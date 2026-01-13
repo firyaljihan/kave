@@ -102,10 +102,35 @@ public function storeUser(Request $request)
     }
 
     public function showEvent($id)
-{
-    $event = Event::with(['user', 'category'])->findOrFail($id);
+    {
+        $event = Event::with(['user', 'category'])->findOrFail($id);
 
-    return view('admin.events.show', compact('event'));
-}
+        return view('admin.events.show', compact('event'));
+    }
+    public function publishedEvents()
+    {
+        $events = \App\Models\Event::with(['user', 'category'])
+            ->where('status', 'published')
+            ->latest()
+            ->get();
+
+        return view('admin.events.published', compact('events'));
+    }
+
+    public function destroyPublishedEvent($id)
+    {
+        $event = \App\Models\Event::findOrFail($id);
+
+        // "Hapus dari tampilan user" = unpublish (AMAN, tidak merusak tiket/pendaftaran)
+        if ($event->status !== 'published') {
+            return back()->with('error', 'Event ini belum published / sudah diturunkan.');
+        }
+
+        $event->update(['status' => 'draft']);
+
+        return redirect()
+            ->route('admin.events.published')
+            ->with('success', 'Event berhasil diturunkan (tidak tampil di user).');
+    }
 
 }

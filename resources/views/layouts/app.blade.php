@@ -49,6 +49,9 @@
                     <a href="{{ route('admin.categories.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.categories.*') ? 'bg-[#6366f1] text-white shadow-lg shadow-indigo-500/30' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5' }}">
                         <i class="fa-solid fa-tags w-5 text-center"></i> <span class="font-bold text-sm">Kategori</span>
                     </a>
+                    <a href="{{ route('admin.events.published') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.events.published*') ? 'bg-[#6366f1] text-white shadow-lg shadow-indigo-500/30' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5' }}">
+                        <i class="fa-solid fa-calendar-check w-5 text-center"></i> <span class="font-bold text-sm">Event Terposting</span>
+                    </a>
 
                 {{-- ================= MENU PENYELENGGARA ================= --}}
                 @elseif(Auth::user()->role === 'penyelenggara')
